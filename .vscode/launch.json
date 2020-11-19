@@ -5,7 +5,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/arduino/build/Garden",
+            "program": "${workspaceFolder}/arduino/build/comunication",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/arduino",
