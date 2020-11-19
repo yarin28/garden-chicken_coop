@@ -37,13 +37,13 @@ int main(/*int argc, char *argv[]*/)
   // If connection fails, return the error code otherwise, display a success message
   if (errorOpening != 1)
     return errorOpening;
-  printf("Successful connection to %s\n", SERIAL_PORT);
-  
+  std::cout << "Successful connection to " << SERIAL_PORT << std::endl;
+
   char str[64] = {0};
   int err = serial.readString(str, '!', 64);
-  std::cout <<str << std::endl << "err: " << err << std::endl;
-  
-  
+  std::cout << str << std::endl
+            << "err: " << err << std::endl;
+
   // Close the serial device
   serial.closeDevice();
 
