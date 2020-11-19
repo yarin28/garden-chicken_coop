@@ -13,7 +13,7 @@
 #include "serialib.h"
 #include <stdio.h>
 #include <iostream>
-
+#define BANDWITH 9600
 #if defined(_WIN32) || defined(_WIN64)
 #define SERIAL_PORT "COM5"
 #endif
@@ -32,7 +32,7 @@ int main(/*int argc, char *argv[]*/)
   serialib serial;
 
   // Connection to serial port
-  char errorOpening = serial.openDevice(SERIAL_PORT, 9600);
+  char errorOpening = serial.openDevice(SERIAL_PORT, BANDWITH);
 
   // If connection fails, return the error code otherwise, display a success message
   if (errorOpening != 1)
