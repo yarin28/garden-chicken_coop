@@ -10,6 +10,10 @@ public:
     Arduino(std::string fileToWrite, std::string portName, unsigned int buadRate, unsigned int timeout);
     Arduino();
     ~Arduino();
+    void setTimeout(int timeout);
+    int getTimout();
+    void setFiles();
+    std::vector<std::string> getFiles();
     int serialCommend(std::string messege);
     int writeFromBufferToFile(std::string messege, int place);
     int checkStatus();
@@ -17,9 +21,11 @@ public:
     void checkConnectionToConsule();
     int checkSum(char *messege); //TODO by mistake I made 2 instances of the same func
     int openSerial();
-    int messegeCheckSum(std::string messege);
-    int getSensorDataB(int Wsensor, int place); //big
+    int messageCheckSum(std::string messege);
+    int getSensorDataB(int Wsensor, int place); //big dump.
     void addFile(std::string file);
+    int receiveData(std::string message);
+    int getCheckSumFromMessage(std::string message);
 private:
     serialib serial;
     std::ofstream fileToWrite;
