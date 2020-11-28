@@ -33,6 +33,8 @@ int main(/*int argc, char *argv[]*/)
   //a.serialCommend("201");
   a.addFile("../dataFromArduino/sensor1.log");
   a.writeFromBufferToFile("hello nigi",0);
+  int x = a.getCheckSumFromMessage("messege !123\n");
+  std::cout<<x<<std::endl;
   return 0;
 }
 
