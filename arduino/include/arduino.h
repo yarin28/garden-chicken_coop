@@ -7,6 +7,15 @@
 class Arduino
 {
 public:
+    enum ID : unsigned char // to make the fileWriting simpler
+    {
+        SENSOR0,
+        SENSOR1,
+        SENSOR2,
+        SENSOR3,
+        SENSOR4,
+        SENSOR5,
+    };
     Arduino(std::string fileToWrite, std::string portName, unsigned int buadRate, unsigned int timeout);
     Arduino();
     ~Arduino();
@@ -26,14 +35,19 @@ public:
     void addFile(std::string file);
     int receiveData(std::string message);
     int getCheckSumFromMessage(std::string message);
-private:
+    int receiveMessage();
+    float receiveFloat();
+    int addLogFilesForSensors();
+    //for the testing↓
     serialib serial;
+
+private:
     std::ofstream fileToWrite;
     std::string portName;
     unsigned int buadRate;
     unsigned int timeout;
     bool isOpen;
-    std::vector< std::string > files;
+    std::vector<std::string> files;
 };
 
 // class ArduinoWithSensor : Arduino{
