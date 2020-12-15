@@ -177,13 +177,13 @@ int Arduino::serialCommend(std::string messege)
     if (!this->isOpen)
         return FAILURE;
     char inputBuff[CHECKBUFFSIZE] = {0};
-    messege.append(std::to_string(messageCheckSum(messege)));
-    messege.append(" ");
+    //messege.append(std::to_string(messageCheckSum(messege)));
+    //messege.append(" ");
     this->serial.writeString(messege.c_str());
     //sleep(5000)
     this->serial.readString(inputBuff, '\n', READLENGTH, TIMEOUT);
     std::string approver = inputBuff;
-    approver = approver.substr(0, 7); //TODO should i make this a constant
+    approver = approver.substr(0, 3); //TODO should i make this a constant
     if (inputBuff != messege)
         return -2; // TODO check if the arduino will return the exact string that i send
     //+ if it will send the \n
@@ -227,7 +227,14 @@ int Arduino::writeFromBufferToFile(std::string data, int place)
 {
     std::ofstream dataLog;
     // const char* name = this->files[place].c_str();
-    dataLog.open(this->files[place], std::ios::app);
+    // dataLog.open(this->files[place].c_str(), std::ios::app);
+    //TODO   i just couldnt open it with the relative path
+    dataLog.open("/home/pi/garden-chicken_coop/arduino/dataFromArduino/sensor4.log", std::ios::app);
+    if (!dataLog)
+    {
+        std::cerr << "Could not open the file!" << std::endl;
+        std::cout << system("ls") << std::endl;
+    }
     // TODO the time ↓ cannot be trusted
     dataLog << std::time(0) << std::endl;
     dataLog << data << std::endl;
@@ -247,7 +254,7 @@ int Arduino::getCheckSumFromMessage(std::string massage)
         // the ! was not found
     }
     std::string checkString = massage.substr(foundExamation + 1, foundn - (foundExamation + 1));
-    // TOD-1 meby put all of this to a function 
+    // TOD-1 meby put all of this to a function
     //~foundN - foundExamation~ the distance between the satrt and the end.
     // this way it will give a positive result
     std::string::size_type sz; // alias of size_t
@@ -255,17 +262,18 @@ int Arduino::getCheckSumFromMessage(std::string massage)
     return checkSumDecimal;
 }
 int Arduino::receiveData(std::string message)
-{   
+{
     bool correct = true;
     bool exit = false;
-    while(!exit)
+    serialCommend("600");
+    while (!exit)
     {
-        std::string temp;// TODO maby just put the decleration outside the while scope
+        std::string temp;              // TODO maby just put the decleration outside the while scope
         char buffer[READLENGTH] = {0}; //100
         //TODO the checksum is non inplemented as intended
         this->serial.readString(buffer, '\n', READLENGTH, 0);
         temp = buffer;
-        if(temp.find("end send")!= std::string::npos)
+        if (temp.find("end send") != std::string::npos)
         {
             //i dont need to check the integrity of the messege if its just the end
             break;
@@ -274,13 +282,13 @@ int Arduino::receiveData(std::string message)
         {
             correct = false;
             //TODO implement a system to resend the last line
-            serialCommend("602");// send the last one another time
+            serialCommend("602"); // send the last one another time
         }
         else
         {
             correct = true;
             message.push_back(*buffer);
-            serialCommend("601");// send the next one
+            serialCommend("601"); // send the next one
         }
     }
 }
@@ -289,3 +297,36 @@ int Arduino::receiveData(std::string message)
 //   {
 //       /* code */
 //   }
+int Arduino::receiveMessage()
+{
+    // char arr[100];
+    // this->serial.readBytes(&arr, 100);
+    uint32_t num = 0;
+    this->serial.readBytes(&num, sizeof(num));
+    // the id is for which log file to put the log in
+    uint32_t id = 0;
+    this->serial.readBytes(&id, sizeof(id));
+
+    if (id == Arduino::SENSOR4) //TODO maby change the enum
+    // this is to check if the writing is relable.
+    {
+        float f = receiveFloat();
+        this->writeFromBufferToFile(std::to_string(f), id);
+    }
+}
+float Arduino::receiveFloat()
+{
+    float value = 0;
+    this->serial.readBytes(&value, sizeof(value));
+    return value;
+}
+
+int Arduino::addLogFilesForSensors()
+{
+    this->addFile("..//dataFromArduino//sensor0.log");
+    this->addFile("../dataFromArduino//sensor1.log");
+    this->addFile("..//dataFromArduino//sensor2.log");
+    this->addFile("..//dataFromArduino//sensor3.log");
+    this->addFile("..//dataFromArduino//sensor4.log");
+    this->addFile("..//dataFromArduino//sensor5.log");
+}
