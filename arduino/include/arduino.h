@@ -39,7 +39,7 @@ public:
     int getTimout();
     void setFiles();
     std::vector<std::string> getFiles();
-    int serialCommend(std::string messege);
+    Arduino::ERRORARDUINO serialCommend(std::string messege);
     int writeFromBufferToFile(std::string messege, int place);
     int checkStatus();
     int checkConnection();

@@ -172,10 +172,10 @@ int Arduino::messageCheckSum(std::string messege)
  * -1=the serial object wasnt opend
  * //TODO add a pretty table
  */
-int Arduino::serialCommend(std::string messege)
+Arduino::ERRORARDUINO Arduino::serialCommend(std::string messege)
 {
     if (!this->isOpen)
-        return FAILURE;
+        return Arduino::ERRORARDUINO::ERROR_WITH_SERIALPORT;
     char inputBuff[CHECKBUFFSIZE] = {0};
     //messege.append(std::to_string(messageCheckSum(messege)));
     //messege.append(" ");
@@ -185,9 +185,9 @@ int Arduino::serialCommend(std::string messege)
     std::string approver = inputBuff;
     approver = approver.substr(0, 3); //TODO should i make this a constant
     if (inputBuff != messege)
-        return -2; // TODO check if the arduino will return the exact string that i send
+        return Arduino::ERRORARDUINO::THE_CHECKSUM_DIDNT_WORK; // TODO check if the arduino will return the exact string that i send
     //+ if it will send the \n
-    return SUCCESS;
+    return Arduino::ERRORARDUINO::SUCCSESS;
 }
 /**
  * @brief will get a data dump of the arduino to a file 
