@@ -24,6 +24,14 @@ public:
         SENSOR4,
         SENSOR5,
     };
+    enum ERRORARDUINO
+    {
+        SUCCSESS = 0,
+        ERROR_WITH_SERIALPORT,
+        ERROR_WITH_FILES,
+        THE_CHECKSUM_DIDNT_WORK,
+        THE_ARDUINO_IS_NOT_RESPONDING,
+    };
     Arduino(std::string fileToWrite, std::string portName, unsigned int buadRate, unsigned int timeout);
     Arduino();
     ~Arduino();
