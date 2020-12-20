@@ -7,6 +7,14 @@
 class Arduino
 {
 public:
+    enum HEADERS
+    {
+        GET_FLOAT = 700,
+        GET_BOOLEAN = 701,
+        ASK_FOR_STATUS_PER_SENSOR = 30 /* the sensor*/,
+        ASK_FOR_OVERALL_STATUS = 300,
+
+    };
     enum ID : unsigned char // to make the fileWriting simpler
     {
         SENSOR0,
