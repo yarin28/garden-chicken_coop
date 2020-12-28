@@ -61,7 +61,7 @@ int main(/*int argc, char *argv[]*/)
 
 //   // Connection to serial port
 //   char errorOpening = serial.openDevice(SERIAL_PORT, BANDWITH);
-//   a.checkConnectionToConsule();
+//   a.checkConnectionToConsole();
 //   a.checkSum("abc");
 //   // If connection fails, return the error code otherwise, display a success message
 //   if (errorOpening != 1)
