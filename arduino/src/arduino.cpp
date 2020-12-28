@@ -219,8 +219,7 @@ Arduino::ERROR_ARDUINO Arduino::receiveMessage()
     uint32_t id = 0;
     this->serial.readBytes(&id, sizeof(id));
 
-    if (id == Arduino::SENSOR4) //TODO maybe change the enum
-    // this is to check if the writing is reliable.
+    if (id == Arduino::SENSOR4)
     {
         float f = receiveFloat();
         this->writeFromBufferToFile(std::to_string(f), id);
