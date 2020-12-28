@@ -313,19 +313,22 @@ int Arduino::getDataWithWhileLoop()
             message.push_back(*buffer);
             serialCommend("601"); // send the next one
         }
+        */
     }
 }
-//  char * p = buffer;
-//   for (int i = 0; i < ciwccccc; i++)
-//   {
-//       /* code */
-//   }
-int Arduino::receiveMessage()
+/**
+ * @brief will recive a message and write it to the sensor log
+ * 
+ * @return the error message 
+ */
+Arduino::ERRORARDUINO Arduino::receiveMessage()
 {
     // char arr[100];
     // this->serial.readBytes(&arr, 100);
-    uint32_t num = 0;
+    /* implemented this in the reciveData func
+    // uint32_t num = 0; 
     this->serial.readBytes(&num, sizeof(num));
+     */
     // the id is for which log file to put the log in
     uint32_t id = 0;
     this->serial.readBytes(&id, sizeof(id));
