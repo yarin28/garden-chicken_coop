@@ -43,36 +43,31 @@ public:
     int getTimout();
     void setFiles();
     std::vector<std::string> getFiles();
-    Arduino::ERROR_ARDUINO serialCommend(std::string messege);
-    int writeFromBufferToFile(std::string messege, int place);
-    Arduino::ERROR_ARDUINO checkStatus(int delay);
-    int checkConnection();
-    Arduino::ERROR_ARDUINO checkStatusFromArduino();
-    void checkConnectionToConsule();
-    int checkSum(char *messege); //TODO by mistake I made 2 instances of the same func
+    void checkConnectionToConsole();
+    int checkSum(char *message); //TODO by mistake I made 2 instances of the same func
     Arduino::ERROR_ARDUINO openSerial();
-    int messageCheckSum(std::string messege);
-    Arduino::ERROR_ARDUINO getSensorDataB(int Wsensor, int place); //big dump.
     void addFile(std::string file);
     bool receiveBoolean();
     int getDataWithWhileLoop();
-    // Arduino::ERRORARDUINO getDataWithWhileLoop();
+    int addLogFilesForSensors();
+    std::thread startTheArdCheking();
+    //for the testing↓
+private:
+    Arduino::ERROR_ARDUINO checkStatus(int delay);
+    int checkConnection();
+    Arduino::ERROR_ARDUINO serialCommend(std::string message);
+    int writeFromBufferToFile(std::string message, int place);
+    Arduino::ERROR_ARDUINO checkStatusFromArduino();
+    Arduino::ERROR_ARDUINO startCheckingForMessege();
     int getCheckSumFromMessage(std::string message);
     Arduino::ERROR_ARDUINO receiveMessage();
     float receiveFloat();
-    int addLogFilesForSensors();
-    Arduino::ERROR_ARDUINO startCheckingForMessege();
-    std::thread startTheArdCheking();
-    //for the testing↓
-    serialib serial;
 
-private:
     std::ofstream fileToWrite;
+    serialib serial;
     std::string portName;
     unsigned int buadRate;
     unsigned int timeout;
     bool isOpen;
     std::vector<std::string> files;
-    // std::vector<std::counting_semaphore<1>()> fileSaver;
 };
-
