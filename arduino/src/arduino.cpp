@@ -199,23 +199,23 @@ Arduino::ERRORARDUINO Arduino::serialCommend(std::string messege)
  * @param place the place in the array of the files
  * @return int the status of result
  */
-int Arduino::getSensorDataB(int Wsensor, int place)
+Arduino::ERRORARDUINO Arduino::getSensorDataB(int Wsensor, int place)
 // TODO maby the sensor param is stupid.
 {
     if (!this->isOpen)
-        return FAILURE; // TODO it will check twice once inside this func and once inside the serialCommend.
-    std::string commendToArduino = COMMENDHEADER;
+        return Arduino::ERRORARDUINO::ERROR_WITH_SERIALPORT; // TODO it will check twice once inside this func and once inside the serialCommend.
+    std::string commendToArduino = std::to_string(Arduino::HEADERS::ASK_FOR_STATUS_PER_SENSOR);
     commendToArduino.append(std::to_string(Wsensor)); // the protocol works like http (more on that in protocol doc)
-    int err = serialCommend(commendToArduino);
-    if (err != SUCCESS)
+    if (serialCommend(commendToArduino) != Arduino::ERRORARDUINO::ERROR_WITH_SERIALPORT)
+        ;
     {
-        return FAILURE;
+        return Arduino::ERRORARDUINO::ERROR_WITH_SERIALPORT;
     }
     char data[DATALEN] = {0};                                 // TODO   check if 1000 is enough.
     this->serial.readString(data, '\n', READLENGTH, TIMEOUT); // TODO the timout can be for the entire send,
     //that can cause the readString func to return without all the data
     writeFromBufferToFile(data, place);
-    return SUCCESS;
+    return Arduino::ERRORARDUINO::SUCCSESS;
 }
 /**
  * @brief dumps data to file +timestamp
