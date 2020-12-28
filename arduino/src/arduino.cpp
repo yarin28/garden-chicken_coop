@@ -360,3 +360,85 @@ int Arduino::addLogFilesForSensors()
     this->addFile("..//dataFromArduino//sensor4.log");
     this->addFile("..//dataFromArduino//sensor5.log");
 }
+/**
+ * @brief the sipmlest way to recive a boolean from the arduino
+ * 
+ * //TODO check the func!!!
+ * 
+ * @return true 
+ * @return false 
+ */
+bool Arduino::receiveBoolean()
+{
+    bool value = 0;
+    this->serial.readBytes(&value, sizeof(value));
+    return value;
+}
+Arduino::ERRORARDUINO Arduino::checkStatus(int delay)
+{
+    if (serialCommend("300") != Arduino::ERRORARDUINO::SUCCSESS)
+    {
+        return Arduino::ERRORARDUINO::ERROR_WITH_SERIALPORT;
+    }
+    if (!this->receiveBoolean())
+    {
+        std::cout << "the status of the arduino is not 100%, restarting the connection" << std::endl;
+        this->serial.closeDevice();
+        openSerial();
+    }
+    unsigned int microsecond = 1000000;
+    usleep(delay * microsecond); //sleeps for 3 second
+}
+/**
+ * @brief the function will send the arduino a message to 
+ * start checking all of its modules. it will look for errors
+ * and if there are it will reboot the arduino.
+ * 
+ * this is a wraper.
+ * 
+ * @return Arduino::ERRORARDUINO 
+ */
+Arduino::ERRORARDUINO Arduino::checkStatusFromArduino()
+{
+    if (!receiveBoolean())
+    {
+        std::cout << "the com is broken!" << std::endl;
+        return Arduino::ERRORARDUINO::THE_ARDUINO_IS_NOT_RESPONDING;
+    }
+    else
+    {
+        std::cout << "the com is great!" << std::endl;
+        Arduino::ERRORARDUINO::SUCCSESS;
+    }
+}
+/**
+ * @brief this is one of my tries to make the threads work in c++
+ * but there are problems:
+ * 1.the sintax is probably from earlier vesion of c++
+ * 2.there are flages that the copiler cant understand
+ * 
+ * @return Arduino::ERRORARDUINO 
+ */
+Arduino::ERRORARDUINO Arduino::startCheckingForMessege()
+{
+
+    std::thread t1(&Arduino::getDataWithWhileLoop, this);
+    std::thread t2(&Arduino::getDataWithWhileLoop, this);
+    t1.join();
+    t2.join();
+}
+/**
+ * @brief this is a wrapper for the messege checking.
+ *  the c++ languich cant declare threades from other scopes 
+ * so i found a sulution to this, just wrap the fanction inside the
+ * scope of the arduino so it will be in this scope.
+ *
+ * i use here a lambda to make it make look prettier.
+ * 
+ * @return std::thread 
+ */
+std::thread Arduino::startTheArdCheking()
+{
+    // std::cout<<"in the arduino cheking"<<std::endl;
+    return std::thread([=] { getDataWithWhileLoop(); });
+}
