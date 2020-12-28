@@ -145,30 +145,21 @@ Arduino::ERROR_ARDUINO Arduino::openSerial()
  * @brief send a serial commend to the arduino and confirm
  *  that the message has been received 
  * 
- * @param messege  the commend to be sent, for now 3 is the prifx 
+ * @param message  the commend to be sent, for now 3 is the prefix 
  * of the commends and the 2 digits behind it are the commend itself
  * 
- * @return int the Confirmation of the messege
- *  1=SUCCESS
- * -2=the messege wasnt received propraly
- * -1=the serial object wasnt opend
- * //TODO add a pretty table
+ * @return the error code.
  */
-Arduino::ERROR_ARDUINO Arduino::serialCommend(std::string messege)
+Arduino::ERROR_ARDUINO Arduino::serialCommend(std::string message)
 {
     if (!this->isOpen)
         return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     char inputBuff[CHECKBUFFSIZE] = {0};
-    //messege.append(std::to_string(messageCheckSum(messege)));
-    //messege.append(" ");
-    this->serial.writeString(messege.c_str());
-    //sleep(5000)
+    this->serial.writeString(message.c_str());
     this->serial.readString(inputBuff, '\n', READLENGTH, TIMEOUT);
     std::string approver = inputBuff;
-    approver = approver.substr(0, 3); //TODO should i make this a constant
-    if (inputBuff != messege)
-        return Arduino::ERROR_ARDUINO::THE_CHECKSUM_DIDNT_WORK; // TODO check if the arduino will return the exact string that i send
-    //+ if it will send the \n
+    approver = approver.substr(0, 3);
+    // check sum should be added.
     return Arduino::ERROR_ARDUINO::SUCCSESS;
 }
 /**
