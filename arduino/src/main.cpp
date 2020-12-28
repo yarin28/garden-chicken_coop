@@ -30,12 +30,26 @@ int main(/*int argc, char *argv[]*/)
 
   Arduino a;
   a.openSerial();
+  a.addLogFilesForSensors();
+  std::thread rvc = a.startTheArdCheking();
+  //std::thread rcv(Arduino::ref(recive));
+  // std::thread rcv2 = a.getDataWithWhileLoop();
+  // std::thread rcv3(a.getDataWithWhileLoop());
+  // std::thread rcv(a.receiveMessage());
+  //std::thread rcv4(&Arduino::getDataWithWhileLoop, a);
+  rvc.join();
+  // rcv2.join();
+  // rcv3.join();
+  //rcv4.join();
+  // a.serial.writeString("302");
+  // a.writeFromBufferToFile("hello", 4);
+  // a.receiveMessage();
   //a.serialCommend("201");
-  a.addFile("../dataFromArduino/sensor1.log");
-  a.writeFromBufferToFile("hello nigi",0);
-  int x = a.getCheckSumFromMessage("messege !123\n");
-  std::cout<<x<<std::endl;
-  return 0;
+  // a.addFile("../dataFromArduino/sensor1.log");
+  // a.writeFromBufferToFile("hello nigi",0);
+  // int x = a.getCheckSumFromMessage("messege !123\n");
+  // std::cout<<x<<std::endl;
+  // return 0;
 }
 
 // int main(/*int argc, char *argv[]*/)
