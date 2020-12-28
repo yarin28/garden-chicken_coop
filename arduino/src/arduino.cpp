@@ -190,34 +190,6 @@ Arduino::ERROR_ARDUINO Arduino::serialCommend(std::string messege)
     return Arduino::ERROR_ARDUINO::SUCCSESS;
 }
 /**
- * @brief will get a data dump of the arduino to a file 
- * the func will send a commend to the arduino to start sending the data
- * and then will recive READLENGTH of bytes. the func will write them to the file
- * that is privided.
- * the problem right now is that it has only 1000 bytes of data.
- * @param Wsensor which sensor
- * @param place the place in the array of the files
- * @return int the status of result
- */
-Arduino::ERROR_ARDUINO Arduino::getSensorDataB(int Wsensor, int place)
-// TODO maby the sensor param is stupid.
-{
-    if (!this->isOpen)
-        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT; // TODO it will check twice once inside this func and once inside the serialCommend.
-    std::string commendToArduino = std::to_string(Arduino::HEADERS::ASK_FOR_STATUS_PER_SENSOR);
-    commendToArduino.append(std::to_string(Wsensor)); // the protocol works like http (more on that in protocol doc)
-    if (serialCommend(commendToArduino) != Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT)
-        ;
-    {
-        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
-    }
-    char data[DATALEN] = {0};                                 // TODO   check if 1000 is enough.
-    this->serial.readString(data, '\n', READLENGTH, TIMEOUT); // TODO the timout can be for the entire send,
-    //that can cause the readString func to return without all the data
-    writeFromBufferToFile(data, place);
-    return Arduino::ERROR_ARDUINO::SUCCSESS;
-}
-/**
  * @brief dumps data to file +timestamp
  * @param data 
  * @param place from the file array
