@@ -31,7 +31,6 @@ Arduino::Arduino()
 /*!
  * @brief Destroy the Arduino:: Arduino object 
  * probably meaningless 
- * //TODO the meaning of this is to be determined
 
  */
 Arduino::~Arduino()
@@ -47,9 +46,8 @@ Arduino::~Arduino()
  * @param buadRate 
  * @param timeout 
  */
-Arduino::Arduino(std::string fileToWrite, std::string portName, unsigned int buadRate, unsigned int timeout)
+Arduino::Arduino(std::string portName, unsigned int buadRate, unsigned int timeout)
 {
-    this->fileToWrite.open(fileToWrite.c_str()); //TODO this parameter is useless
     this->portName = portName;
     this->buadRate = buadRate;
     this->timeout = timeout;

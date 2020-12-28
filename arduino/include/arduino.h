@@ -36,7 +36,7 @@ public:
         THE_CHECKSUM_DIDNT_WORK,
         THE_ARDUINO_IS_NOT_RESPONDING,
     };
-    Arduino(std::string fileToWrite, std::string portName, unsigned int buadRate, unsigned int timeout);
+    Arduino(std::string portName, unsigned int buadRate, unsigned int timeout);
     Arduino();
     ~Arduino();
     void setTimeout(int timeout);
