@@ -346,7 +346,11 @@ float Arduino::receiveFloat()
     this->serial.readBytes(&value, sizeof(value));
     return value;
 }
-
+/**
+ * @brief for debuging, will add mockfiles for the logging
+ * 
+ * @return int 
+ */
 int Arduino::addLogFilesForSensors()
 {
     this->addFile("..//dataFromArduino//sensor0.log");
