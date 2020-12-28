@@ -132,15 +132,15 @@ int Arduino::checkSum(char *messege)
 /**
  * @brief open the serial class with the members of this class
  * 
- * @return int 
+ * @return will return the error if itere is one. 
  */
-int Arduino::openSerial()
+Arduino::ERRORARDUINO Arduino::openSerial()
 {
     int err = this->serial.openDevice(this->portName.c_str(), this->buadRate);
     if (err != SUCCESS)
-        return FAILURE;
+        return Arduino::ERROR_WITH_SERIALPORT;
     this->isOpen = true;
-    return SUCCESS;
+    return Arduino::SUCCSESS;
 }
 /**
  * @brief check the sum of the string
