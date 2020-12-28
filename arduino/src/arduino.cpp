@@ -348,22 +348,6 @@ Arduino::ERROR_ARDUINO Arduino::checkStatusFromArduino()
     }
 }
 /**
- * @brief this is one of my tries to make the threads work in c++
- * but there are problems:
- * 1.the sintax is probably from earlier vesion of c++
- * 2.there are flages that the copiler cant understand
- * 
- * @return Arduino::ERROR_ARDUINO 
- */
-Arduino::ERROR_ARDUINO Arduino::startCheckingForMessege()
-{
-
-    std::thread t1(&Arduino::getDataWithWhileLoop, this);
-    std::thread t2(&Arduino::getDataWithWhileLoop, this);
-    t1.join();
-    t2.join();
-}
-/**
  * @brief this is a wrapper for the messege checking.
  *  the c++ languich cant declare threades from other scopes 
  * so i found a sulution to this, just wrap the fanction inside the
