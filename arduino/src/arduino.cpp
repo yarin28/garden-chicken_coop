@@ -327,7 +327,7 @@ Arduino::ERRORARDUINO Arduino::receiveMessage()
     // this->serial.readBytes(&arr, 100);
     /* implemented this in the reciveData func
     // uint32_t num = 0; 
-    this->serial.readBytes(&num, sizeof(num));
+     this->serial.readBytes(&num, sizeof(num));
      */
     // the id is for which log file to put the log in
     uint32_t id = 0;
