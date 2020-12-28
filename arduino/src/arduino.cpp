@@ -163,24 +163,21 @@ Arduino::ERROR_ARDUINO Arduino::serialCommend(std::string message)
     return Arduino::ERROR_ARDUINO::SUCCSESS;
 }
 /**
- * @brief dumps data to file +timestamp
- * @param data 
+ * @brief dumps data to file +time stamp
+ * @param data the data from the arduino 
  * @param place from the file array
  * @return int 
  */
 int Arduino::writeFromBufferToFile(std::string data, int place)
 {
     std::ofstream dataLog;
-    // const char* name = this->files[place].c_str();
-    // dataLog.open(this->files[place].c_str(), std::ios::app);
-    //TODO   i just couldnt open it with the relative path
-    dataLog.open("/home/pi/garden-chicken_coop/arduino/dataFromArduino/sensor4.log", std::ios::app);
+    //TODO   I just couldn't open it with the relative path
+    dataLog.open("..//dataFromArduino//sensor4.log");
     if (!dataLog)
     {
         std::cerr << "Could not open the file!" << std::endl;
         std::cout << system("ls") << std::endl;
     }
-    // TODO the time ↓ cannot be trusted
     dataLog << std::time(0) << std::endl;
     dataLog << data << std::endl;
     dataLog.close();
