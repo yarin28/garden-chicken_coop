@@ -241,30 +241,6 @@ int Arduino::getDataWithWhileLoop()
             }
             return Arduino::ERROR_ARDUINO::SUCCSESS;
         }
-        /*
-        std::string temp;              // TODO maby just put the decleration outside the while scope
-        char buffer[READLENGTH] = {0}; //100
-        //TODO the checksum is non inplemented as intended
-        this->serial.readString(buffer, '\n', READLENGTH, 0);
-        temp = buffer;
-        if (temp.find("end send") != std::string::npos)
-        {
-            //i dont need to check the integrity of the messege if its just the end
-            break;
-        }
-        if (getCheckSumFromMessage(temp) != messageCheckSum(temp))
-        {
-            correct = false;
-            //TODO implement a system to resend the last line
-            serialCommend("602"); // send the last one another time
-        }
-        else
-        {
-            correct = true;
-            message.push_back(*buffer);
-            serialCommend("601"); // send the next one
-        }
-        */
     }
 }
 /**
