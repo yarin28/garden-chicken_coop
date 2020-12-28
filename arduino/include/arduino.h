@@ -4,6 +4,9 @@
 #include <string>
 #include "serialib.h"
 #include <ios>
+#include <thread>
+#include <chrono>
+#include <mutex>
 class Arduino
 {
 public:
