@@ -261,13 +261,36 @@ int Arduino::getCheckSumFromMessage(std::string massage)
     int checkSumDecimal = std::stoi(checkString, &sz, 10);
     return checkSumDecimal;
 }
-int Arduino::receiveData(std::string message)
+int Arduino::getDataWithWhileLoop()
 {
-    bool correct = true;
-    bool exit = false;
-    serialCommend("600");
-    while (!exit)
+    if (openSerial() == Arduino::ERROR_WITH_SERIALPORT)
     {
+        // return Arduino::ERRORARDUINO::ERROR_WITH_SERIALPORT;
+    }
+    int counter = 0;
+    std::cout << "entering the while loop" << std::endl;
+    while (true)
+    {
+        if (this->serial.available())
+        {
+            counter++;
+            std::cout << counter << std::endl;
+            uint32_t num = 0;
+            this->serial.readBytes(&num, sizeof(num));
+            switch (num)
+            {
+            case 700:
+                receiveMessage();
+                continue;
+            case 300:
+                checkStatusFromArduino();
+                continue;
+            default:
+                continue;
+            }
+            return Arduino::ERRORARDUINO::SUCCSESS;
+        }
+        /*
         std::string temp;              // TODO maby just put the decleration outside the while scope
         char buffer[READLENGTH] = {0}; //100
         //TODO the checksum is non inplemented as intended
