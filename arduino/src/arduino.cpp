@@ -20,7 +20,7 @@
 #define CHECKBUFFSIZE 64
 
 /*!
-    @brief constract the arduino class for the testing
+    @brief construct the arduino class for the testing
 */
 Arduino::Arduino()
 {
@@ -49,7 +49,7 @@ Arduino::~Arduino()
  */
 Arduino::Arduino(std::string fileToWrite, std::string portName, unsigned int buadRate, unsigned int timeout)
 {
-    this->fileToWrite.open(fileToWrite.c_str()); //TODO this parameter is usless
+    this->fileToWrite.open(fileToWrite.c_str()); //TODO this parameter is useless
     this->portName = portName;
     this->buadRate = buadRate;
     this->timeout = timeout;
@@ -70,8 +70,6 @@ void Arduino::setTimeout(int timeout)
 /**
  * @brief check the connection to the arduino and report.
  * 
- * @return  1 -> success
- *          -1-> faild 
  */
 int Arduino::checkConnection()
 {
@@ -90,19 +88,18 @@ int Arduino::checkConnection()
  * @brief check the connection for debugging
  * 
  */
-void Arduino::checkConnectionToConsule()
+void Arduino::checkConnectionToConsole()
 {
     int status = checkConnection();
     if (status != SUCCESS)
     {
-        std::cout << "there was a problem with the connection, the problen code is- " << status << std::endl;
+        std::cout << "there was a problem with the connection, the problem code is- " << status << std::endl;
     }
     std::cout << "the connection is successful!-" << status << "-" << std::endl;
 }
 /**
  * @brief add file to the files array
  * 
- * @param file 
  */
 
 void Arduino::addFile(std::string file)
@@ -110,20 +107,20 @@ void Arduino::addFile(std::string file)
     this->files.push_back(file);
 }
 /**
- * @brief will caculate the sum of a string
- * i forgot that i found this func on the web so i made 
- * a simple version of this useing std::string
- * this one will probaby be used in the arduino
- * @param messege 
+ * @brief will calculate the sum of a string
+ * I forgot that I found this function on the web so I made 
+ * a simple version of this using std::string
+ * this one will probably be used in the arduino
+ * @param message 
  * @return int 
  */
-int Arduino::checkSum(char *messege)
+int Arduino::checkSum(char *message)
 {
     int sum = 0;
-    char *p = &messege[0];
+    char *p = &message[0];
     while (*p != NULLCHAR)
     {
-        sum += *messege;
+        sum += *message;
         ++p;
     }
     return sum;
@@ -131,7 +128,7 @@ int Arduino::checkSum(char *messege)
 /**
  * @brief open the serial class with the members of this class
  * 
- * @return will return the error if itere is one. 
+ * @return will return the error if there is one. 
  */
 Arduino::ERROR_ARDUINO Arduino::openSerial()
 {
@@ -187,7 +184,7 @@ int Arduino::getDataWithWhileLoop()
 {
     if (openSerial() == Arduino::ERROR_WITH_SERIALPORT)
     {
-        // return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
+        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     }
     int counter = 0;
     std::cout << "entering the while loop" << std::endl;
@@ -215,24 +212,17 @@ int Arduino::getDataWithWhileLoop()
     }
 }
 /**
- * @brief will recive a message and write it to the sensor log
+ * @brief will receive a message and write it to the sensor log
  * 
  * @return the error message 
  */
 Arduino::ERROR_ARDUINO Arduino::receiveMessage()
 {
-    // char arr[100];
-    // this->serial.readBytes(&arr, 100);
-    /* implemented this in the reciveData func
-    // uint32_t num = 0; 
-     this->serial.readBytes(&num, sizeof(num));
-     */
-    // the id is for which log file to put the log in
     uint32_t id = 0;
     this->serial.readBytes(&id, sizeof(id));
 
-    if (id == Arduino::SENSOR4) //TODO maby change the enum
-    // this is to check if the writing is relable.
+    if (id == Arduino::SENSOR4) //TODO maybe change the enum
+    // this is to check if the writing is reliable.
     {
         float f = receiveFloat();
         this->writeFromBufferToFile(std::to_string(f), id);
@@ -245,7 +235,7 @@ float Arduino::receiveFloat()
     return value;
 }
 /**
- * @brief for debuging, will add mockfiles for the logging
+ * @brief for debugging, will add mock files for the logging
  * 
  * @return int 
  */
@@ -259,12 +249,7 @@ int Arduino::addLogFilesForSensors()
     this->addFile("..//dataFromArduino//sensor5.log");
 }
 /**
- * @brief the sipmlest way to recive a boolean from the arduino
- * 
- * //TODO check the func!!!
- * 
- * @return true 
- * @return false 
+ * @brief the simplest way to receive a boolean from the arduino
  */
 bool Arduino::receiveBoolean()
 {
@@ -274,12 +259,11 @@ bool Arduino::receiveBoolean()
 }
 /**
  * @brief the function will send the arduino a message to 
- * start checking all of its modules. it will look for errors
+ * start checking all of its modules. It will look for errors
  * and if there are it will reboot the arduino.
  * 
- * this is a wraper.
+ * this is a wrapper.
  * 
- * @return Arduino::ERROR_ARDUINO 
  */
 Arduino::ERROR_ARDUINO Arduino::checkStatusFromArduino()
 {
@@ -295,17 +279,17 @@ Arduino::ERROR_ARDUINO Arduino::checkStatusFromArduino()
     }
 }
 /**
- * @brief this is a wrapper for the messege checking.
- *  the c++ languich cant declare threades from other scopes 
- * so i found a sulution to this, just wrap the fanction inside the
+ * @brief this is a wrapper for the message checking.
+ *  the c++ language cant declare threaders from other scopes 
+ * so I found a solution to this, just wrap the function inside the
  * scope of the arduino so it will be in this scope.
  *
- * i use here a lambda to make it make look prettier.
+ * I use here a lambda to make it make look prettier.
  * 
  * @return std::thread 
  */
 std::thread Arduino::startTheArdCheking()
 {
-    // std::cout<<"in the arduino cheking"<<std::endl;
+    // std::cout<<"in the arduino checking"<<std::endl;
     return std::thread([=] { getDataWithWhileLoop(); });
 }
