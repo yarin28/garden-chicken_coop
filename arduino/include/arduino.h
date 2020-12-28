@@ -72,6 +72,7 @@ private:
     unsigned int timeout;
     bool isOpen;
     std::vector<std::string> files;
+    // std::vector<std::counting_semaphore<1>()> fileSaver;
 };
 
 // class ArduinoWithSensor : Arduino{
