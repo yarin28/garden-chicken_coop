@@ -325,21 +325,6 @@ bool Arduino::receiveBoolean()
     this->serial.readBytes(&value, sizeof(value));
     return value;
 }
-Arduino::ERROR_ARDUINO Arduino::checkStatus(int delay)
-{
-    if (serialCommend("300") != Arduino::ERROR_ARDUINO::SUCCSESS)
-    {
-        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
-    }
-    if (!this->receiveBoolean())
-    {
-        std::cout << "the status of the arduino is not 100%, restarting the connection" << std::endl;
-        this->serial.closeDevice();
-        openSerial();
-    }
-    unsigned int microsecond = 1000000;
-    usleep(delay * microsecond); //sleeps for 3 second
-}
 /**
  * @brief the function will send the arduino a message to 
  * start checking all of its modules. it will look for errors
