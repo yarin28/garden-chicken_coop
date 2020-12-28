@@ -1,12 +1,12 @@
-void setup() {
+void setup()
+{
   Serial.begin(9600);
   int myPins[] = {2, 4, 8, 3, 6};
   int arr[10] = {9, 3, 2, 4, 3, 2, 7, 8, 9, 11};
-  char* = intarrInToString(arr, 10);
-
-
+  char * = intarrInToString(arr, 10);
 }
-char intarrInToString(int[] arr , int len ) {
+char intarrInToString(int[] arr, int len)
+{
   char str[len];
   int i = 0;
   int index = 0;
@@ -14,8 +14,10 @@ char intarrInToString(int[] arr , int len ) {
     index += snprintf(&str[index], 128 - index, "%d", a[i]);
   return str;
 }
-void loop() {
+void loop()
+{
   Serial.print("Hello from Arduino!");
   delay(2000);
 
-1}
+  1
+}
