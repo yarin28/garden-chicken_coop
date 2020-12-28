@@ -9,7 +9,6 @@
  */
 
 #include "arduino.h"
-#include <ctime>
 #define RATE 9600
 #define TIMEOUT 10000
 #define READLENGTH 100
@@ -212,26 +211,6 @@ int Arduino::writeFromBufferToFile(std::string data, int place)
     dataLog << data << std::endl;
     dataLog.close();
     return SUCCESS;
-}
-int Arduino::getCheckSumFromMessage(std::string massage)
-{
-    std::size_t foundExamation = massage.find('!');
-    std::size_t foundn = massage.find('\n');
-    if (foundn == std::string::npos)
-    {
-        // the end line wasnt recicved well
-    }
-    if (foundExamation == std::string::npos)
-    {
-        // the ! was not found
-    }
-    std::string checkString = massage.substr(foundExamation + 1, foundn - (foundExamation + 1));
-    // TOD-1 meby put all of this to a function
-    //~foundN - foundExamation~ the distance between the satrt and the end.
-    // this way it will give a positive result
-    std::string::size_type sz; // alias of size_t
-    int checkSumDecimal = std::stoi(checkString, &sz, 10);
-    return checkSumDecimal;
 }
 int Arduino::getDataWithWhileLoop()
 {
