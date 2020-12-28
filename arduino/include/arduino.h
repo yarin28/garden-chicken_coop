@@ -44,19 +44,24 @@ public:
     std::vector<std::string> getFiles();
     Arduino::ERRORARDUINO serialCommend(std::string messege);
     int writeFromBufferToFile(std::string messege, int place);
-    int checkStatus();
+    Arduino::ERRORARDUINO checkStatus(int delay);
     int checkConnection();
+    Arduino::ERRORARDUINO checkStatusFromArduino();
     void checkConnectionToConsule();
     int checkSum(char *messege); //TODO by mistake I made 2 instances of the same func
-    int openSerial();
+    Arduino::ERRORARDUINO openSerial();
     int messageCheckSum(std::string messege);
-    int getSensorDataB(int Wsensor, int place); //big dump.
+    Arduino::ERRORARDUINO getSensorDataB(int Wsensor, int place); //big dump.
     void addFile(std::string file);
-    int receiveData(std::string message);
+    bool receiveBoolean();
+    int getDataWithWhileLoop();
+    // Arduino::ERRORARDUINO getDataWithWhileLoop();
     int getCheckSumFromMessage(std::string message);
-    int receiveMessage();
+    Arduino::ERRORARDUINO receiveMessage();
     float receiveFloat();
     int addLogFilesForSensors();
+    Arduino::ERRORARDUINO startCheckingForMessege();
+    std::thread startTheArdCheking();
     //for the testing↓
     serialib serial;
 
