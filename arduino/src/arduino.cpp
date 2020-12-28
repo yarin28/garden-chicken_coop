@@ -142,25 +142,8 @@ Arduino::ERROR_ARDUINO Arduino::openSerial()
     return Arduino::SUCCSESS;
 }
 /**
- * @brief check the sum of the string
- * 
- * @param messege 
- * @return int sum of the string
- */
-int Arduino::messageCheckSum(std::string messege)
-{
-    int sum = 0;
-    for (int i = 0; i < messege.length(); i++)
-    {
-        if (messege[i] == '!')
-            break;
-        sum += messege[i];
-    }
-    return sum;
-}
-/**
  * @brief send a serial commend to the arduino and confirm
- *  that the messege has been recived 
+ *  that the message has been received 
  * 
  * @param messege  the commend to be sent, for now 3 is the prifx 
  * of the commends and the 2 digits behind it are the commend itself
