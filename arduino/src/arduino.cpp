@@ -134,7 +134,7 @@ int Arduino::checkSum(char *messege)
  * 
  * @return will return the error if itere is one. 
  */
-Arduino::ERRORARDUINO Arduino::openSerial()
+Arduino::ERROR_ARDUINO Arduino::openSerial()
 {
     int err = this->serial.openDevice(this->portName.c_str(), this->buadRate);
     if (err != SUCCESS)
@@ -172,10 +172,10 @@ int Arduino::messageCheckSum(std::string messege)
  * -1=the serial object wasnt opend
  * //TODO add a pretty table
  */
-Arduino::ERRORARDUINO Arduino::serialCommend(std::string messege)
+Arduino::ERROR_ARDUINO Arduino::serialCommend(std::string messege)
 {
     if (!this->isOpen)
-        return Arduino::ERRORARDUINO::ERROR_WITH_SERIALPORT;
+        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     char inputBuff[CHECKBUFFSIZE] = {0};
     //messege.append(std::to_string(messageCheckSum(messege)));
     //messege.append(" ");
@@ -185,9 +185,9 @@ Arduino::ERRORARDUINO Arduino::serialCommend(std::string messege)
     std::string approver = inputBuff;
     approver = approver.substr(0, 3); //TODO should i make this a constant
     if (inputBuff != messege)
-        return Arduino::ERRORARDUINO::THE_CHECKSUM_DIDNT_WORK; // TODO check if the arduino will return the exact string that i send
+        return Arduino::ERROR_ARDUINO::THE_CHECKSUM_DIDNT_WORK; // TODO check if the arduino will return the exact string that i send
     //+ if it will send the \n
-    return Arduino::ERRORARDUINO::SUCCSESS;
+    return Arduino::ERROR_ARDUINO::SUCCSESS;
 }
 /**
  * @brief will get a data dump of the arduino to a file 
@@ -199,23 +199,23 @@ Arduino::ERRORARDUINO Arduino::serialCommend(std::string messege)
  * @param place the place in the array of the files
  * @return int the status of result
  */
-Arduino::ERRORARDUINO Arduino::getSensorDataB(int Wsensor, int place)
+Arduino::ERROR_ARDUINO Arduino::getSensorDataB(int Wsensor, int place)
 // TODO maby the sensor param is stupid.
 {
     if (!this->isOpen)
-        return Arduino::ERRORARDUINO::ERROR_WITH_SERIALPORT; // TODO it will check twice once inside this func and once inside the serialCommend.
+        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT; // TODO it will check twice once inside this func and once inside the serialCommend.
     std::string commendToArduino = std::to_string(Arduino::HEADERS::ASK_FOR_STATUS_PER_SENSOR);
     commendToArduino.append(std::to_string(Wsensor)); // the protocol works like http (more on that in protocol doc)
-    if (serialCommend(commendToArduino) != Arduino::ERRORARDUINO::ERROR_WITH_SERIALPORT)
+    if (serialCommend(commendToArduino) != Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT)
         ;
     {
-        return Arduino::ERRORARDUINO::ERROR_WITH_SERIALPORT;
+        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     }
     char data[DATALEN] = {0};                                 // TODO   check if 1000 is enough.
     this->serial.readString(data, '\n', READLENGTH, TIMEOUT); // TODO the timout can be for the entire send,
     //that can cause the readString func to return without all the data
     writeFromBufferToFile(data, place);
-    return Arduino::ERRORARDUINO::SUCCSESS;
+    return Arduino::ERROR_ARDUINO::SUCCSESS;
 }
 /**
  * @brief dumps data to file +timestamp
@@ -265,7 +265,7 @@ int Arduino::getDataWithWhileLoop()
 {
     if (openSerial() == Arduino::ERROR_WITH_SERIALPORT)
     {
-        // return Arduino::ERRORARDUINO::ERROR_WITH_SERIALPORT;
+        // return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     }
     int counter = 0;
     std::cout << "entering the while loop" << std::endl;
@@ -288,7 +288,7 @@ int Arduino::getDataWithWhileLoop()
             default:
                 continue;
             }
-            return Arduino::ERRORARDUINO::SUCCSESS;
+            return Arduino::ERROR_ARDUINO::SUCCSESS;
         }
         /*
         std::string temp;              // TODO maby just put the decleration outside the while scope
@@ -321,7 +321,7 @@ int Arduino::getDataWithWhileLoop()
  * 
  * @return the error message 
  */
-Arduino::ERRORARDUINO Arduino::receiveMessage()
+Arduino::ERROR_ARDUINO Arduino::receiveMessage()
 {
     // char arr[100];
     // this->serial.readBytes(&arr, 100);
@@ -374,11 +374,11 @@ bool Arduino::receiveBoolean()
     this->serial.readBytes(&value, sizeof(value));
     return value;
 }
-Arduino::ERRORARDUINO Arduino::checkStatus(int delay)
+Arduino::ERROR_ARDUINO Arduino::checkStatus(int delay)
 {
-    if (serialCommend("300") != Arduino::ERRORARDUINO::SUCCSESS)
+    if (serialCommend("300") != Arduino::ERROR_ARDUINO::SUCCSESS)
     {
-        return Arduino::ERRORARDUINO::ERROR_WITH_SERIALPORT;
+        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     }
     if (!this->receiveBoolean())
     {
@@ -396,19 +396,19 @@ Arduino::ERRORARDUINO Arduino::checkStatus(int delay)
  * 
  * this is a wraper.
  * 
- * @return Arduino::ERRORARDUINO 
+ * @return Arduino::ERROR_ARDUINO 
  */
-Arduino::ERRORARDUINO Arduino::checkStatusFromArduino()
+Arduino::ERROR_ARDUINO Arduino::checkStatusFromArduino()
 {
     if (!receiveBoolean())
     {
         std::cout << "the com is broken!" << std::endl;
-        return Arduino::ERRORARDUINO::THE_ARDUINO_IS_NOT_RESPONDING;
+        return Arduino::ERROR_ARDUINO::THE_ARDUINO_IS_NOT_RESPONDING;
     }
     else
     {
         std::cout << "the com is great!" << std::endl;
-        Arduino::ERRORARDUINO::SUCCSESS;
+        Arduino::ERROR_ARDUINO::SUCCSESS;
     }
 }
 /**
@@ -417,9 +417,9 @@ Arduino::ERRORARDUINO Arduino::checkStatusFromArduino()
  * 1.the sintax is probably from earlier vesion of c++
  * 2.there are flages that the copiler cant understand
  * 
- * @return Arduino::ERRORARDUINO 
+ * @return Arduino::ERROR_ARDUINO 
  */
-Arduino::ERRORARDUINO Arduino::startCheckingForMessege()
+Arduino::ERROR_ARDUINO Arduino::startCheckingForMessege()
 {
 
     std::thread t1(&Arduino::getDataWithWhileLoop, this);

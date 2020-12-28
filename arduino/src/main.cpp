@@ -16,7 +16,7 @@
 #include "arduino.h"
 #define BANDWITH 9600
 #ifdef __linux__
-#define SERIAL_PORT "/dev/ttyUSB0"
+#define SERIAL_PORT "/dev/ttyUSB1"
 #endif
 
 /*!
@@ -24,7 +24,6 @@
  * \return      0 : success
  *              <0 : an error occured
  */
-
 int main(/*int argc, char *argv[]*/)
 {
 
