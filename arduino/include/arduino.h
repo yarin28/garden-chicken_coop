@@ -54,9 +54,9 @@ public:
     //for the testing↓
 private:
     Arduino::ERROR_ARDUINO checkStatus(int delay);
-    int checkConnection();
+    Arduino::ERROR_ARDUINO checkConnection();
     Arduino::ERROR_ARDUINO serialCommend(std::string message);
-    int writeFromBufferToFile(std::string message, int place);
+    Arduino::ERROR_ARDUINO writeFromBufferToFile(std::string message, int place);
     Arduino::ERROR_ARDUINO checkStatusFromArduino();
     Arduino::ERROR_ARDUINO startCheckingForMessege();
     int getCheckSumFromMessage(std::string message);
