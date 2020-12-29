@@ -229,7 +229,7 @@ float Arduino::receiveFloat()
  * 
  * @return int 
  */
-int Arduino::addLogFilesForSensors()
+void Arduino::addLogFilesForSensors()
 {
     this->addFile("..//dataFromArduino//sensor0.log");
     this->addFile("../dataFromArduino//sensor1.log");
