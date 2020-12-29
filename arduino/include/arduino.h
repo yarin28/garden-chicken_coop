@@ -47,9 +47,9 @@ public:
     int checkSum(char *message); //TODO by mistake I made 2 instances of the same func
     Arduino::ERROR_ARDUINO openSerial();
     void addFile(std::string file);
-    bool receiveBoolean();
-    int getDataWithWhileLoop();
-    int addLogFilesForSensors();
+        bool receiveBoolean();
+    Arduino::ERROR_ARDUINO getDataWithWhileLoop();
+    void addLogFilesForSensors();
     std::thread startTheArdCheking();
     //for the testing↓
 private:
