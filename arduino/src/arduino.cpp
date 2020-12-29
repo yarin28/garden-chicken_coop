@@ -41,10 +41,6 @@ Arduino::~Arduino()
 /**
  * @brief Construct a new Arduino:: Arduino object
  * 
- * @param fileToWrite 
- * @param portName 
- * @param buadRate 
- * @param timeout 
  */
 Arduino::Arduino(std::string portName, unsigned int buadRate, unsigned int timeout)
 {
@@ -67,20 +63,19 @@ void Arduino::setTimeout(int timeout)
 }
 /**
  * @brief check the connection to the arduino and report.
- * 
  */
-int Arduino::checkConnection()
+Arduino::ERROR_ARDUINO Arduino::checkConnection()
 {
     if (!this->isOpen)
-        return SUCCESS;
+        return Arduino::ERROR_ARDUINO::SUCCSESS;
     char helper = this->serial.openDevice(portName.c_str(), buadRate);
     if (helper != SUCCESS)
     {
         serial.closeDevice();
-        return helper;
+        return Arduino::ERROR_ARDUINO::SUCCSESS;
     }
     serial.closeDevice();
-    return helper;
+    return Arduino::ERROR_ARDUINO::SUCCSESS;
 }
 /**
  * @brief check the connection for debugging
@@ -88,23 +83,21 @@ int Arduino::checkConnection()
  */
 void Arduino::checkConnectionToConsole()
 {
-    int status = checkConnection();
-    if (status != SUCCESS)
+    if (checkConnection() != Arduino::ERROR_ARDUINO::SUCCSESS)
     {
-        std::cout << "there was a problem with the connection, the problem code is- " << status << std::endl;
+        std::cout << "there was a problem with the connection"<< std::endl;
     }
-    std::cout << "the connection is successful!-" << status << "-" << std::endl;
+    std::cout << "the connection is successful!-" << std::endl;
 }
 /**
  * @brief add file to the files array
- * 
  */
 
 void Arduino::addFile(std::string file)
 {
     this->files.push_back(file);
 }
-/**
+/*
  * @brief will calculate the sum of a string
  * I forgot that I found this function on the web so I made 
  * a simple version of this using std::string
@@ -125,7 +118,6 @@ int Arduino::checkSum(char *message)
 }
 /**
  * @brief open the serial class with the members of this class
- * 
  * @return will return the error if there is one. 
  */
 Arduino::ERROR_ARDUINO Arduino::openSerial()
@@ -287,6 +279,5 @@ Arduino::ERROR_ARDUINO Arduino::checkStatusFromArduino()
  */
 std::thread Arduino::startTheArdCheking()
 {
-    // std::cout<<"in the arduino checking"<<std::endl;
     return std::thread([=] { getDataWithWhileLoop(); });
 }
