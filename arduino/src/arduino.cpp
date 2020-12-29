@@ -124,11 +124,11 @@ Arduino::ERROR_ARDUINO Arduino::openSerial()
 {
     int err = this->serial.openDevice(this->portName.c_str(), this->buadRate);
     if (err != SUCCESS)
-        return Arduino::ERROR_WITH_SERIALPORT;
+        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     this->isOpen = true;
-    return Arduino::SUCCSESS;
+    return Arduino::ERROR_ARDUINO::SUCCSESS;
 }
-/**
+/*
  * @brief send a serial commend to the arduino and confirm
  *  that the message has been received 
  * 
@@ -170,7 +170,7 @@ int Arduino::writeFromBufferToFile(std::string data, int place)
     dataLog.close();
     return SUCCESS;
 }
-int Arduino::getDataWithWhileLoop()
+Arduino::ERROR_ARDUINO  Arduino::getDataWithWhileLoop()
 {
     if (openSerial() == Arduino::ERROR_WITH_SERIALPORT)
     {
@@ -216,6 +216,7 @@ Arduino::ERROR_ARDUINO Arduino::receiveMessage()
         float f = receiveFloat();
         this->writeFromBufferToFile(std::to_string(f), id);
     }
+    return ERROR_ARDUINO::SUCCSESS 
 }
 float Arduino::receiveFloat()
 {
