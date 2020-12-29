@@ -85,7 +85,7 @@ void Arduino::checkConnectionToConsole()
 {
     if (checkConnection() != Arduino::ERROR_ARDUINO::SUCCSESS)
     {
-        std::cout << "there was a problem with the connection"<< std::endl;
+        std::cout << "there was a problem with the connection" << std::endl;
     }
     std::cout << "the connection is successful!-" << std::endl;
 }
@@ -155,7 +155,7 @@ Arduino::ERROR_ARDUINO Arduino::serialCommend(std::string message)
  * @param place from the file array
  * @return int 
  */
-int Arduino::writeFromBufferToFile(std::string data, int place)
+Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(std::string data, int place)
 {
     std::ofstream dataLog;
     //TODO   I just couldn't open it with the relative path
@@ -168,9 +168,9 @@ int Arduino::writeFromBufferToFile(std::string data, int place)
     dataLog << std::time(0) << std::endl;
     dataLog << data << std::endl;
     dataLog.close();
-    return SUCCESS;
+    return ERROR_ARDUINO::SUCCSESS;
 }
-Arduino::ERROR_ARDUINO  Arduino::getDataWithWhileLoop()
+Arduino::ERROR_ARDUINO Arduino::getDataWithWhileLoop()
 {
     if (openSerial() == Arduino::ERROR_WITH_SERIALPORT)
     {
@@ -216,7 +216,7 @@ Arduino::ERROR_ARDUINO Arduino::receiveMessage()
         float f = receiveFloat();
         this->writeFromBufferToFile(std::to_string(f), id);
     }
-    return ERROR_ARDUINO::SUCCSESS 
+    return ERROR_ARDUINO::SUCCSESS;
 }
 float Arduino::receiveFloat()
 {
@@ -265,8 +265,8 @@ Arduino::ERROR_ARDUINO Arduino::checkStatusFromArduino()
     else
     {
         std::cout << "the com is great!" << std::endl;
-        Arduino::ERROR_ARDUINO::SUCCSESS;
     }
+    Arduino::ERROR_ARDUINO::SUCCSESS;
 }
 /**
  * @brief this is a wrapper for the message checking.
