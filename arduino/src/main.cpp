@@ -34,7 +34,7 @@ int main(/*int argc, char *argv[]*/)
   //std::thread rcv(Arduino::ref(recive));
   // std::thread rcv2 = a.getDataWithWhileLoop();
   // std::thread rcv3(a.getDataWithWhileLoop());
-  // std::thread rcv(a.receiveMessage());
+  // std::thread rcv(a.receiveDataFromSensor());
   //std::thread rcv4(&Arduino::getDataWithWhileLoop, a);
   rvc.join();
   // rcv2.join();
@@ -42,7 +42,7 @@ int main(/*int argc, char *argv[]*/)
   //rcv4.join();
   // a.serial.writeString("302");
   // a.writeFromBufferToFile("hello", 4);
-  // a.receiveMessage();
+  // a.receiveDataFromSensor();
   //a.serialCommend("201");
   // a.addFile("../dataFromArduino/sensor1.log");
   // a.writeFromBufferToFile("hello nigi",0);
