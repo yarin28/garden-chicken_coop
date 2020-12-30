@@ -20,15 +20,6 @@
 #define CHECKBUFFSIZE 64
 
 /*!
-    @brief construct the arduino class for the testing
-*/
-Arduino::Arduino()
-{
-    this->portName = "/dev/ttyUSB0";
-    this->buadRate = RATE;
-    this->timeout = TIMEOUT;
-}
-/*!
  * @brief Destroy the Arduino:: Arduino object 
  * probably meaningless 
 
