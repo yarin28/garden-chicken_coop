@@ -147,14 +147,18 @@ Arduino::ERROR_ARDUINO Arduino::serialCommend(std::string message)
  */
 Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(std::string data, int place)
 {
+    std::cout << "inside writeFromBufferToFile" << data << std::endl;
+
     std::ofstream dataLog;
     //TODO   I just couldn't open it with the relative path
-    dataLog.open("..//dataFromArduino//sensor4.log");
+    dataLog.open("../dataFromArduino/sensor4.log",std::ios_base::app);
+
     if (!dataLog)
     {
         std::cerr << "Could not open the file!" << std::endl;
-        std::cout << system("ls") << std::endl;
+        // std::cout << system("pwd") << std::endl;
     }
+    std::cout << exec("pwd") << std::endl;
     dataLog << std::time(0) << std::endl;
     dataLog << data << std::endl;
     dataLog.close();
