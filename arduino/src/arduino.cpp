@@ -27,7 +27,6 @@
 Arduino::~Arduino()
 {
     this->serial.closeDevice();
-    this->isOpen = false;
 }
 /**
  * @brief Construct a new Arduino:: Arduino object
