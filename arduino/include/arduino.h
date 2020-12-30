@@ -8,6 +8,9 @@
 #include <chrono>
 #include <mutex>
 #include <ctime>
+#include <cstdio>
+#include <stdexcept>
+#include <memory>
 class Arduino
 {
 public:
@@ -47,7 +50,7 @@ public:
     int checkSum(char *message); //TODO by mistake I made 2 instances of the same func
     Arduino::ERROR_ARDUINO openSerial();
     void addFile(std::string file);
-        bool receiveBoolean();
+    bool receiveBoolean();
     Arduino::ERROR_ARDUINO getDataWithWhileLoop();
     void addLogFilesForSensors();
     std::thread startTheArdCheking();
@@ -60,8 +63,9 @@ private:
     Arduino::ERROR_ARDUINO checkStatusFromArduino();
     Arduino::ERROR_ARDUINO startCheckingForMessege();
     int getCheckSumFromMessage(std::string message);
-    Arduino::ERROR_ARDUINO receiveMessage();
+    Arduino::ERROR_ARDUINO receiveDataFromSensor();
     float receiveFloat();
+    std::string exec(const char *cmd);
 
     std::ofstream fileToWrite;
     serialib serial;
