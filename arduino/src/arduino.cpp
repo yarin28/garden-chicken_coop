@@ -57,15 +57,15 @@ void Arduino::setTimeout(int timeout)
 Arduino::ERROR_ARDUINO Arduino::checkConnection()
 {
     if (!this->isOpen)
-        return Arduino::ERROR_ARDUINO::SUCCSESS;
+        return ERROR_ARDUINO::SUCCSESS;
     char helper = this->serial.openDevice(portName.c_str(), buadRate);
     if (helper != SUCCESS)
     {
         serial.closeDevice();
-        return Arduino::ERROR_ARDUINO::SUCCSESS;
+        return ERROR_ARDUINO::SUCCSESS;
     }
     serial.closeDevice();
-    return Arduino::ERROR_ARDUINO::SUCCSESS;
+    return ERROR_ARDUINO::SUCCSESS;
 }
 /**
  * @brief check the connection for debugging
@@ -114,9 +114,9 @@ Arduino::ERROR_ARDUINO Arduino::openSerial()
 {
     int err = this->serial.openDevice(this->portName.c_str(), this->buadRate);
     if (err != SUCCESS)
-        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
+        return ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     this->isOpen = true;
-    return Arduino::ERROR_ARDUINO::SUCCSESS;
+    return ERROR_ARDUINO::SUCCSESS;
 }
 /*
  * @brief send a serial commend to the arduino and confirm
@@ -130,14 +130,14 @@ Arduino::ERROR_ARDUINO Arduino::openSerial()
 Arduino::ERROR_ARDUINO Arduino::serialCommend(std::string message)
 {
     if (!this->isOpen)
-        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
+        return ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     char inputBuff[CHECKBUFFSIZE] = {0};
     this->serial.writeString(message.c_str());
     this->serial.readString(inputBuff, '\n', READLENGTH, TIMEOUT);
     std::string approver = inputBuff;
     approver = approver.substr(0, 3);
     // check sum should be added.
-    return Arduino::ERROR_ARDUINO::SUCCSESS;
+    return ERROR_ARDUINO::SUCCSESS;
 }
 /**
  * @brief dumps data to file +time stamp
@@ -147,18 +147,17 @@ Arduino::ERROR_ARDUINO Arduino::serialCommend(std::string message)
  */
 Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(std::string data, int place)
 {
-    std::cout << "inside writeFromBufferToFile" << data << std::endl;
-
     std::ofstream dataLog;
-    //TODO   I just couldn't open it with the relative path
-    dataLog.open("../dataFromArduino/sensor4.log",std::ios_base::app);
-
+    std::string fileName = "../dataFromArduino/sensor";
+    std::string fileNameEnd = ".log";
+    fileName.append(std::to_string(place));
+    fileName.append(fileNameEnd);
+    dataLog.open(fileName, std::ios_base::app);
     if (!dataLog)
     {
         std::cerr << "Could not open the file!" << std::endl;
-        // std::cout << system("pwd") << std::endl;
+        return ERROR_ARDUINO::ERROR_WITH_FILES;
     }
-    std::cout << exec("pwd") << std::endl;
     dataLog << std::time(0) << std::endl;
     dataLog << data << std::endl;
     dataLog.close();
@@ -166,24 +165,20 @@ Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(std::string data, int plac
 }
 Arduino::ERROR_ARDUINO Arduino::getDataWithWhileLoop()
 {
-    if (openSerial() == Arduino::ERROR_WITH_SERIALPORT)
+    if (openSerial() == ERROR_WITH_SERIALPORT)
     {
-        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
+        return ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     }
-    int counter = 0;
-    std::cout << "entering the while loop" << std::endl;
     while (true)
     {
         if (this->serial.available())
         {
-            counter++;
-            std::cout << counter << std::endl;
             uint32_t num = 0;
             this->serial.readBytes(&num, sizeof(num));
             switch (num)
             {
             case 700:
-                receiveMessage();
+                receiveDataFromSensor();
                 continue;
             case 300:
                 checkStatusFromArduino();
@@ -191,7 +186,7 @@ Arduino::ERROR_ARDUINO Arduino::getDataWithWhileLoop()
             default:
                 continue;
             }
-            return Arduino::ERROR_ARDUINO::SUCCSESS;
+            return ERROR_ARDUINO::SUCCSESS;
         }
     }
 }
@@ -200,16 +195,12 @@ Arduino::ERROR_ARDUINO Arduino::getDataWithWhileLoop()
  * 
  * @return the error message 
  */
-Arduino::ERROR_ARDUINO Arduino::receiveMessage()
+Arduino::ERROR_ARDUINO Arduino::receiveDataFromSensor()
 {
     uint32_t id = 0;
     this->serial.readBytes(&id, sizeof(id));
-
-    if (id == Arduino::SENSOR4)
-    {
-        float f = receiveFloat();
-        this->writeFromBufferToFile(std::to_string(f), id);
-    }
+    float f = receiveFloat();
+    this->writeFromBufferToFile(std::to_string(f), id);
     return ERROR_ARDUINO::SUCCSESS;
 }
 float Arduino::receiveFloat()
@@ -254,13 +245,13 @@ Arduino::ERROR_ARDUINO Arduino::checkStatusFromArduino()
     if (!receiveBoolean())
     {
         std::cout << "the com is broken!" << std::endl;
-        return Arduino::ERROR_ARDUINO::THE_ARDUINO_IS_NOT_RESPONDING;
+        return ERROR_ARDUINO::THE_ARDUINO_IS_NOT_RESPONDING;
     }
     else
     {
         std::cout << "the com is great!" << std::endl;
     }
-    Arduino::ERROR_ARDUINO::SUCCSESS;
+    return ERROR_ARDUINO::SUCCSESS;
 }
 /**
  * @brief this is a wrapper for the message checking.
