@@ -22,6 +22,7 @@ public:
         ASK_FOR_OVERALL_STATUS = 300,
 
     };
+
     enum ID : unsigned char // to make the fileWriting simpler
     {
         SENSOR0,
@@ -31,6 +32,7 @@ public:
         SENSOR4,
         SENSOR5,
     };
+
     enum ERROR_ARDUINO
     {
         SUCCSESS = 0,
@@ -40,8 +42,10 @@ public:
         THE_ARDUINO_IS_NOT_RESPONDING,
         STATUS_IS_BAD,
     };
+
     Arduino(std::string portName, unsigned int buadRate, unsigned int timeout);
     ~Arduino();
+
     void setTimeout(int timeout);
     int getTimout();
     void setFiles();

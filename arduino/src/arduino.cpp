@@ -11,13 +11,7 @@
 #include "arduino.h"
 #define RATE 9600
 #define TIMEOUT 10000
-#define READLENGTH 100
-#define SUCCESS 1
-#define DATALEN 1000
-#define COMMENDHEADER "3"
-#define FAILURE -1
-#define NULLCHAR '\0'
-#define CHECKBUFFSIZE 64
+#define CHECK_BUFFER_SIZE 64
 
 /*!
  * @brief Destroy the Arduino:: Arduino object 
@@ -28,7 +22,7 @@ Arduino::~Arduino()
     this->serial.closeDevice();
 }
 /**
- * @brief Construct a new Arduino:: Arduino object
+ * @brief Construct a new Arduino::Arduino object
  * 
  */
 Arduino::Arduino(std::string portName, unsigned int buadRate, unsigned int timeout) : portName(portName), buadRate(buadRate), timeout(timeout)
@@ -64,22 +58,23 @@ void Arduino::setTimeout(int timeout)
 }
 /**
  * @brief check the connection to the arduino and report.
+ * @return the error code // change to code and type 
+
  */
 Arduino::ERROR_ARDUINO Arduino::checkConnection()
 {
     if (!this->isOpen)
         return Arduino::ERROR_ARDUINO::SUCCSESS;
     char helper = this->serial.openDevice(portName.c_str(), buadRate);
-    if (helper != SUCCESS)
+    if (helper != Arduino::ERROR_ARDUINO::SUCCSESS)
     {
         serial.closeDevice();
-        return Arduino::ERROR_ARDUINO::SUCCSESS;
     }
     serial.closeDevice();
     return Arduino::ERROR_ARDUINO::SUCCSESS;
 }
 /**
- * @brief check the connection for debugging
+ * @brief check the connection 
  */
 void Arduino::checkConnectionToConsole()
 {
@@ -90,7 +85,8 @@ void Arduino::checkConnectionToConsole()
     std::cout << "the connection is successful!-" << std::endl;
 }
 /**
- * @brief add file to the files array
+ * @brief adds file to the files array
+ * @param file the file to add to the array of files
  * @param file add a file to the array of files
  */
 
@@ -99,18 +95,15 @@ void Arduino::addFile(std::string file)
     this->files.push_back(file);
 }
 /*
- * @brief will calculate the sum of a string
- * I forgot that I found this function on the web so I made 
- * a simple version of this using std::string
- * this one will probably be used in the arduino
- * @param message char array pointer 
- * @return int the sum of the chars ascii values.
+ * @brief calculate the sum of a string
+ * @param message a string that the checksum will be calcualted from
+ * @return int the checksum that was calculated from the message
  */
 int Arduino::checkSum(char *message)
 {
     int sum = 0;
     char *p = &message[0];
-    while (*p != NULLCHAR)
+    while (*p != NULL)
     {
         sum += *message;
         ++p;
@@ -119,12 +112,12 @@ int Arduino::checkSum(char *message)
 }
 /**
  * @brief open the serial class with the members of this class
- * @return Arduino::ERROR_ARDUINO will return the error code if there is one. 
+ * @return Arduino::ERROR_ARDUINO will return the error code if there is one. or succsess 
  */
 Arduino::ERROR_ARDUINO Arduino::openSerial()
 {
     int err = this->serial.openDevice(this->portName.c_str(), this->buadRate);
-    if (err != SUCCESS)
+    if (err != Arduino::ERROR_ARDUINO::SUCCSESS)
         return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     this->isOpen = true;
     return Arduino::ERROR_ARDUINO::SUCCSESS;
@@ -133,24 +126,26 @@ Arduino::ERROR_ARDUINO Arduino::openSerial()
  * @brief send a serial commend to the arduino and confirm
  *  that the message has been received 
  * 
- * @param message  the commend to be sent, for now 3 is the prefix 
+ * @param message  the commend to be sent, now 3 is the prefix 
  * of the commends and the 2 digits behind it are the commend itself
+ * for example 301
+ * 3->the prifix (this message will be a command)
+ * 01-> the "id" (this one will request status from sensor 1)
  * 
- * @return the error code.
+ * @return Arduino::ERROR_ARDUINO the error code.
  */
 Arduino::ERROR_ARDUINO Arduino::serialCommend(std::string message)
 {
     if (!this->isOpen)
         return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
-    char inputBuff[CHECKBUFFSIZE] = {0};
     this->serial.writeString(message.c_str());
     // check sum should be added.
     return Arduino::ERROR_ARDUINO::SUCCSESS;
 }
 /**
- * @brief dumps data to file +time stamp
- * @param data the data from the arduino 
- * @param place from the file array
+ * @brief dumps data and timestamp to file
+ * @param data to write to the file
+ * @param place the index of the file from array
  * @return Arduino::ERROR_ARDUINO will return the error code if there is one. 
  */
 Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(std::string data, int place)
@@ -161,11 +156,11 @@ Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(std::string data, int plac
     fileName.append(std::to_string(place));
     fileName.append(fileNameEnd);
     dataLog.open(fileName, std::ios_base::app);
-    if (!dataLog)
+    if (!dataLog.is_open())
     {
         return Arduino::ERROR_ARDUINO::ERROR_WITH_FILES;
     }
-    dataLog << std::time(0) << std::endl;
+    dataLog << std::time(nullptr) << std::endl;
     dataLog << data << std::endl;
     dataLog.close();
     return Arduino::ERROR_ARDUINO::SUCCSESS;
@@ -178,7 +173,7 @@ Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(std::string data, int plac
  */
 Arduino::ERROR_ARDUINO Arduino::getDataWithWhileLoop()
 {
-    if (openSerial() == ERROR_WITH_SERIALPORT)
+    if (this->openSerial() == Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT)
     {
         return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     }
@@ -190,10 +185,10 @@ Arduino::ERROR_ARDUINO Arduino::getDataWithWhileLoop()
             this->serial.readBytes(&num, sizeof(num));
             switch (num)
             {
-            case HEADERS::GET_FLOAT:
+            case Arduino::HEADERS::GET_FLOAT:
                 receiveDataFromSensor();
                 continue;
-            case HEADERS::ASK_FOR_OVERALL_STATUS:
+            case Arduino::HEADERS::ASK_FOR_OVERALL_STATUS:
                 checkStatusFromArduino();
                 continue;
             default:
@@ -271,13 +266,7 @@ Arduino::ERROR_ARDUINO Arduino::checkStatusFromArduino()
 }
 /**
  * @brief this is a wrapper for the message checking.
- *  the c++ language cant declare threaders from other scopes 
- * so I found a solution to this, just wrap the function inside the
- * scope of the arduino so it will be in this scope.
- *
- * I use here a lambda to make it make look prettier.
- * 
- * @return std::thread
+ * @return std::thread the thread of the fanction
  */
 std::thread Arduino::startTheArduinoCheking()
 {
