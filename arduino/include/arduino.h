@@ -38,9 +38,9 @@ public:
         ERROR_WITH_FILES,
         THE_CHECKSUM_DIDNT_WORK,
         THE_ARDUINO_IS_NOT_RESPONDING,
+        STATUS_IS_BAD,
     };
     Arduino(std::string portName, unsigned int buadRate, unsigned int timeout);
-    Arduino();
     ~Arduino();
     void setTimeout(int timeout);
     int getTimout();
@@ -53,7 +53,7 @@ public:
     bool receiveBoolean();
     Arduino::ERROR_ARDUINO getDataWithWhileLoop();
     void addLogFilesForSensors();
-    std::thread startTheArdCheking();
+    std::thread startTheArduinoCheking();
 
 private:
     Arduino::ERROR_ARDUINO checkStatus(int delay);
@@ -65,7 +65,6 @@ private:
     int getCheckSumFromMessage(std::string message);
     Arduino::ERROR_ARDUINO receiveDataFromSensor();
     float receiveFloat();
-    std::string exec(const char *cmd);
 
     std::ofstream fileToWrite;
     serialib serial;

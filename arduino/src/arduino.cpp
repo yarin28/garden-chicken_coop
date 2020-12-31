@@ -8,6 +8,8 @@
  * 
  */
 
+// add declration
+// add Arduino
 #include "arduino.h"
 #define RATE 9600
 #define TIMEOUT 10000
@@ -22,7 +24,6 @@
 /*!
  * @brief Destroy the Arduino:: Arduino object 
  * probably meaningless 
-
  */
 Arduino::~Arduino()
 {
@@ -32,21 +33,33 @@ Arduino::~Arduino()
  * @brief Construct a new Arduino:: Arduino object
  * 
  */
-Arduino::Arduino(std::string portName, unsigned int buadRate, unsigned int timeout)
+Arduino::Arduino(std::string portName, unsigned int buadRate, unsigned int timeout) : portName(portName), buadRate(buadRate), timeout(timeout)
 {
-    this->portName = portName;
-    this->buadRate = buadRate;
-    this->timeout = timeout;
 }
-
+/**
+ * @brief getter, will return an array of files that the class uses
+ * to output of the sensors
+ * 
+ * @return std::vector<std::string> an array of string 
+ */
 std::vector<std::string> Arduino::getFiles()
 {
     return this->files;
 }
+/**
+ * @brief getter for the timeout of the serial port
+ * 
+ * @return int the time to abandon the serial communication
+ */
 int Arduino::getTimout()
 {
     return this->timeout;
 }
+/**
+ * @brief setter of the timeout
+ * 
+ * @param timeout int the time to abandon the serial communication
+ */
 void Arduino::setTimeout(int timeout)
 {
     this->timeout = timeout;
@@ -57,19 +70,18 @@ void Arduino::setTimeout(int timeout)
 Arduino::ERROR_ARDUINO Arduino::checkConnection()
 {
     if (!this->isOpen)
-        return ERROR_ARDUINO::SUCCSESS;
+        return Arduino::ERROR_ARDUINO::SUCCSESS;
     char helper = this->serial.openDevice(portName.c_str(), buadRate);
     if (helper != SUCCESS)
     {
         serial.closeDevice();
-        return ERROR_ARDUINO::SUCCSESS;
+        return Arduino::ERROR_ARDUINO::SUCCSESS;
     }
     serial.closeDevice();
-    return ERROR_ARDUINO::SUCCSESS;
+    return Arduino::ERROR_ARDUINO::SUCCSESS;
 }
 /**
  * @brief check the connection for debugging
- * 
  */
 void Arduino::checkConnectionToConsole()
 {
@@ -81,6 +93,7 @@ void Arduino::checkConnectionToConsole()
 }
 /**
  * @brief add file to the files array
+ * @param file add a file to the array of files
  */
 
 void Arduino::addFile(std::string file)
@@ -92,8 +105,8 @@ void Arduino::addFile(std::string file)
  * I forgot that I found this function on the web so I made 
  * a simple version of this using std::string
  * this one will probably be used in the arduino
- * @param message 
- * @return int 
+ * @param message char array pointer 
+ * @return int the sum of the chars ascii values.
  */
 int Arduino::checkSum(char *message)
 {
@@ -108,15 +121,15 @@ int Arduino::checkSum(char *message)
 }
 /**
  * @brief open the serial class with the members of this class
- * @return will return the error if there is one. 
+ * @return Arduino::ERROR_ARDUINO will return the error code if there is one. 
  */
 Arduino::ERROR_ARDUINO Arduino::openSerial()
 {
     int err = this->serial.openDevice(this->portName.c_str(), this->buadRate);
     if (err != SUCCESS)
-        return ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
+        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     this->isOpen = true;
-    return ERROR_ARDUINO::SUCCSESS;
+    return Arduino::ERROR_ARDUINO::SUCCSESS;
 }
 /*
  * @brief send a serial commend to the arduino and confirm
@@ -130,16 +143,17 @@ Arduino::ERROR_ARDUINO Arduino::openSerial()
 Arduino::ERROR_ARDUINO Arduino::serialCommend(std::string message)
 {
     if (!this->isOpen)
-        return ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
+        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     char inputBuff[CHECKBUFFSIZE] = {0};
     this->serial.writeString(message.c_str());
     // check sum should be added.
-    return ERROR_ARDUINO::SUCCSESS;
+    return Arduino::ERROR_ARDUINO::SUCCSESS;
 }
 /**
  * @brief dumps data to file +time stamp
  * @param data the data from the arduino 
  * @param place from the file array
+ * @return Arduino::ERROR_ARDUINO will return the error code if there is one. 
  */
 Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(std::string data, int place)
 {
@@ -151,18 +165,24 @@ Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(std::string data, int plac
     dataLog.open(fileName, std::ios_base::app);
     if (!dataLog)
     {
-        return ERROR_ARDUINO::ERROR_WITH_FILES;
+        return Arduino::ERROR_ARDUINO::ERROR_WITH_FILES;
     }
     dataLog << std::time(0) << std::endl;
     dataLog << data << std::endl;
     dataLog.close();
-    return ERROR_ARDUINO::SUCCSESS;
+    return Arduino::ERROR_ARDUINO::SUCCSESS;
 }
+/**
+ * @brief this is the main function,
+ * will listen to the serial port and interact with it.
+ * 
+ * @return Arduino::ERROR_ARDUINO will return the error code if there is one. 
+ */
 Arduino::ERROR_ARDUINO Arduino::getDataWithWhileLoop()
 {
     if (openSerial() == ERROR_WITH_SERIALPORT)
     {
-        return ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
+        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     }
     while (true)
     {
@@ -172,23 +192,22 @@ Arduino::ERROR_ARDUINO Arduino::getDataWithWhileLoop()
             this->serial.readBytes(&num, sizeof(num));
             switch (num)
             {
-            case 700:
+            case HEADERS::GET_FLOAT:
                 receiveDataFromSensor();
                 continue;
-            case 300:
+            case HEADERS::ASK_FOR_OVERALL_STATUS:
                 checkStatusFromArduino();
                 continue;
             default:
                 continue;
             }
-            return ERROR_ARDUINO::SUCCSESS;
+            return Arduino::ERROR_ARDUINO::SUCCSESS;
         }
     }
 }
 /**
  * @brief will receive a message and write it to the sensor log
- * 
- * @return the error message 
+ * @return Arduino::ERROR_ARDUINO will return the error code if there is one. 
  */
 Arduino::ERROR_ARDUINO Arduino::receiveDataFromSensor()
 {
@@ -196,8 +215,13 @@ Arduino::ERROR_ARDUINO Arduino::receiveDataFromSensor()
     this->serial.readBytes(&id, sizeof(id));
     float f = receiveFloat();
     this->writeFromBufferToFile(std::to_string(f), id);
-    return ERROR_ARDUINO::SUCCSESS;
+    return Arduino::ERROR_ARDUINO::SUCCSESS;
 }
+/**
+ * @brief will receive float from serial port
+ * 
+ * @return float the value that came out.
+ */
 float Arduino::receiveFloat()
 {
     float value = 0;
@@ -205,14 +229,12 @@ float Arduino::receiveFloat()
     return value;
 }
 /**
- * @brief for debugging, will add mock files for the logging
- * 
- * @return int 
+ * @brief will add mock files for the logging
  */
 void Arduino::addLogFilesForSensors()
 {
     this->addFile("..//dataFromArduino//sensor0.log");
-    this->addFile("../dataFromArduino//sensor1.log");
+    this->addFile("..//dataFromArduino//sensor1.log");
     this->addFile("..//dataFromArduino//sensor2.log");
     this->addFile("..//dataFromArduino//sensor3.log");
     this->addFile("..//dataFromArduino//sensor4.log");
@@ -220,6 +242,7 @@ void Arduino::addLogFilesForSensors()
 }
 /**
  * @brief the simplest way to receive a boolean from the arduino
+ * @return bool the value that came from the serial port.
  */
 bool Arduino::receiveBoolean()
 {
@@ -237,16 +260,16 @@ bool Arduino::receiveBoolean()
  */
 Arduino::ERROR_ARDUINO Arduino::checkStatusFromArduino()
 {
-    if (!receiveBoolean())
+    if (receiveBoolean())
     {
-        std::cout << "the com is broken!" << std::endl;
-        return ERROR_ARDUINO::THE_ARDUINO_IS_NOT_RESPONDING;
+        std::cout << "the Status is great!" << std::endl;
     }
     else
     {
-        std::cout << "the com is great!" << std::endl;
+        std::cout << "the Status is bad!" << std::endl;
+        return Arduino::ERROR_ARDUINO::STATUS_IS_BAD;
     }
-    return ERROR_ARDUINO::SUCCSESS;
+    return Arduino::ERROR_ARDUINO::SUCCSESS;
 }
 /**
  * @brief this is a wrapper for the message checking.
@@ -256,24 +279,9 @@ Arduino::ERROR_ARDUINO Arduino::checkStatusFromArduino()
  *
  * I use here a lambda to make it make look prettier.
  * 
- * @return std::thread 
+ * @return std::thread
  */
-std::thread Arduino::startTheArdCheking()
+std::thread Arduino::startTheArduinoCheking()
 {
     return std::thread([=] { getDataWithWhileLoop(); });
-}
-std::string Arduino::exec(const char *cmd)
-{
-    std::array<char, 128> buffer;
-    std::string result;
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
-    if (!pipe)
-    {
-        throw std::runtime_error("popen() failed!");
-    }
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
-    {
-        result += buffer.data();
-    }
-    return result;
 }
