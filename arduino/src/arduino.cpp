@@ -8,8 +8,6 @@
  * 
  */
 
-// add declration
-// add Arduino
 #include "arduino.h"
 #define RATE 9600
 #define TIMEOUT 10000
