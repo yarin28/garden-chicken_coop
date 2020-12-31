@@ -54,7 +54,7 @@ public:
     Arduino::ERROR_ARDUINO getDataWithWhileLoop();
     void addLogFilesForSensors();
     std::thread startTheArdCheking();
-    //for the testing↓
+
 private:
     Arduino::ERROR_ARDUINO checkStatus(int delay);
     Arduino::ERROR_ARDUINO checkConnection();

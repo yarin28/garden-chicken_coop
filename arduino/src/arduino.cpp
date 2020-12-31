@@ -133,9 +133,6 @@ Arduino::ERROR_ARDUINO Arduino::serialCommend(std::string message)
         return ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     char inputBuff[CHECKBUFFSIZE] = {0};
     this->serial.writeString(message.c_str());
-    this->serial.readString(inputBuff, '\n', READLENGTH, TIMEOUT);
-    std::string approver = inputBuff;
-    approver = approver.substr(0, 3);
     // check sum should be added.
     return ERROR_ARDUINO::SUCCSESS;
 }
@@ -146,7 +143,7 @@ Arduino::ERROR_ARDUINO Arduino::serialCommend(std::string message)
  */
 Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(std::string data, int place)
 {
-    std::ofstream dataLog;// this part could be one line but I want it that way.
+    std::ofstream dataLog; // this part could be one line but I want it that way.
     std::string fileName = "../dataFromArduino/sensor";
     std::string fileNameEnd = ".log";
     fileName.append(std::to_string(place));
@@ -154,7 +151,6 @@ Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(std::string data, int plac
     dataLog.open(fileName, std::ios_base::app);
     if (!dataLog)
     {
-        std::cerr << "Could not open the file!" << std::endl;
         return ERROR_ARDUINO::ERROR_WITH_FILES;
     }
     dataLog << std::time(0) << std::endl;
