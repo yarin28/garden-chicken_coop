@@ -143,11 +143,10 @@ Arduino::ERROR_ARDUINO Arduino::serialCommend(std::string message)
  * @brief dumps data to file +time stamp
  * @param data the data from the arduino 
  * @param place from the file array
- * @return int 
  */
 Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(std::string data, int place)
 {
-    std::ofstream dataLog;
+    std::ofstream dataLog;// this part could be one line but I want it that way.
     std::string fileName = "../dataFromArduino/sensor";
     std::string fileNameEnd = ".log";
     fileName.append(std::to_string(place));
