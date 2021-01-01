@@ -9,10 +9,9 @@
  */
 
 #include "arduino.h"
-#define RATE 9600
-#define TIMEOUT 10000
 #define CHECK_BUFFER_SIZE 64
-
+#define FILE_NAME "../dataFromArduino/sensor"
+#define FILE_NAME_END ".log"
 /*!
  * @brief Destroy the Arduino:: Arduino object 
  * probably meaningless 
@@ -25,7 +24,7 @@ Arduino::~Arduino()
  * @brief Construct a new Arduino::Arduino object
  * 
  */
-Arduino::Arduino(std::string portName, unsigned int buadRate, unsigned int timeout) : portName(portName), buadRate(buadRate), timeout(timeout)
+Arduino::Arduino(const std::string &portName, unsigned int buadRate, unsigned int timeout) : portName(portName), buadRate(buadRate), timeout(timeout)
 {
 }
 /**
@@ -34,7 +33,7 @@ Arduino::Arduino(std::string portName, unsigned int buadRate, unsigned int timeo
  * 
  * @return std::vector<std::string> an array of string 
  */
-std::vector<std::string> Arduino::getFiles()
+const std::vector<std::string> &Arduino::getFiles()
 {
     return this->files;
 }
@@ -58,15 +57,14 @@ void Arduino::setTimeout(int timeout)
 }
 /**
  * @brief check the connection to the arduino and report.
- * @return the error code // change to code and type 
-
+ * @return the error code 
  */
 Arduino::ERROR_ARDUINO Arduino::checkConnection()
 {
     if (!this->isOpen)
         return Arduino::ERROR_ARDUINO::SUCCSESS;
     char helper = this->serial.openDevice(portName.c_str(), buadRate);
-    if (helper != Arduino::ERROR_ARDUINO::SUCCSESS)
+    if (helper != 1)
     {
         serial.closeDevice();
     }
@@ -87,10 +85,9 @@ void Arduino::checkConnectionToConsole()
 /**
  * @brief adds file to the files array
  * @param file the file to add to the array of files
- * @param file add a file to the array of files
  */
 
-void Arduino::addFile(std::string file)
+void Arduino::addFile(const std::string &file)
 {
     this->files.push_back(file);
 }
@@ -99,10 +96,10 @@ void Arduino::addFile(std::string file)
  * @param message a string that the checksum will be calcualted from
  * @return int the checksum that was calculated from the message
  */
-int Arduino::checkSum(char *message)
+int Arduino::checkSum(const char *message)
 {
     int sum = 0;
-    char *p = &message[0];
+    const char *p = &message[0];
     while (*p != NULL)
     {
         sum += *message;
@@ -134,7 +131,7 @@ Arduino::ERROR_ARDUINO Arduino::openSerial()
  * 
  * @return Arduino::ERROR_ARDUINO the error code.
  */
-Arduino::ERROR_ARDUINO Arduino::serialCommend(std::string message)
+Arduino::ERROR_ARDUINO Arduino::serialCommend(const std::string &message)
 {
     if (!this->isOpen)
         return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
@@ -148,13 +145,12 @@ Arduino::ERROR_ARDUINO Arduino::serialCommend(std::string message)
  * @param place the index of the file from array
  * @return Arduino::ERROR_ARDUINO will return the error code if there is one. 
  */
-Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(std::string data, int place)
+Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(const std::string &data, int place)
 {
     std::ofstream dataLog; // this part could be one line but I want it that way.
-    std::string fileName = "../dataFromArduino/sensor";
-    std::string fileNameEnd = ".log";
+    std::string fileName = FILE_NAME;
     fileName.append(std::to_string(place));
-    fileName.append(fileNameEnd);
+    fileName.append(FILE_NAME_END);
     dataLog.open(fileName, std::ios_base::app);
     if (!dataLog.is_open())
     {
