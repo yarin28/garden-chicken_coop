@@ -7,11 +7,6 @@
 #define SERIAL_PORT "/dev/ttyUSB0"
 #endif
 
-/*!
- * \brief main  Simple example that send ASCII characters to the serial device
- * \return      0 : success
- *              <0 : an error occured
- */
 int main(/*int argc, char *argv[]*/)
 {
 
