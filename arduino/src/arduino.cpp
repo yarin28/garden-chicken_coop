@@ -8,6 +8,7 @@
  * 
  */
 
+#include <ctime>
 #include "arduino.h"
 #define CHECK_BUFFER_SIZE 64
 #define FILE_NAME "../dataFromArduino/sensor"

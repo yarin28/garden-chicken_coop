@@ -5,12 +5,6 @@
 #include "serialib.h"
 #include <ios>
 #include <thread>
-#include <chrono>
-#include <mutex>
-#include <ctime>
-#include <cstdio>
-#include <stdexcept>
-#include <memory>
 class Arduino
 {
 public:
