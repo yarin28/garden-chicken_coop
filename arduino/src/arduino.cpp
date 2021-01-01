@@ -169,9 +169,11 @@ Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(const std::string &data, i
  */
 Arduino::ERROR_ARDUINO Arduino::getDataWithWhileLoop()
 {
-    if (this->openSerial() == Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT)
+    Arduino::ERROR_ARDUINO return_code = Arduino::ERROR_ARDUINO::SUCCESS;
+    return_code =this->openSerial()
+    if (return_code  != Arduino::ERROR_ARDUINO::SUCCESS;)
     {
-        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
+        goto l_cleanup;
     }
     while (true)
     {
@@ -182,17 +184,27 @@ Arduino::ERROR_ARDUINO Arduino::getDataWithWhileLoop()
             switch (num)
             {
             case Arduino::HEADERS::GET_FLOAT:
-                receiveDataFromSensor();
+                return_code = receiveDataFromSensor();
+                if(return_code != SUCCESS)
+                     goto l_cleanup;
                 continue;
             case Arduino::HEADERS::ASK_FOR_OVERALL_STATUS:
-                checkStatusFromArduino();
+                return_code = checkStatusFromArduino();
+                if(return_code == SOMEERROR)
+                {
+                   handle error
+                   return_code = SUCCESS;
+                }
+                if(return_code != SUCCESS)
+                     goto l_cleanup;
                 continue;
             default:
                 continue;
             }
-            return Arduino::ERROR_ARDUINO::SUCCSESS;
         }
     }
+l_cleanup:
+    return return_code;
 }
 /**
  * @brief will receive a message and write it to the sensor log
