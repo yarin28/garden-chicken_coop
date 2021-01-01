@@ -63,7 +63,7 @@ Arduino::ERROR_ARDUINO Arduino::checkConnection()
 {
     if (!this->isOpen)
         return Arduino::ERROR_ARDUINO::SUCCSESS;
-    char helper = this->serial.openDevice(portName.c_str(), buadRate);
+    char helper = serial.openDevice(portName.c_str(), buadRate);
     if (helper != 1)
     {
         serial.closeDevice();
@@ -113,7 +113,7 @@ int Arduino::checkSum(const char *message)
  */
 Arduino::ERROR_ARDUINO Arduino::openSerial()
 {
-    int err = this->serial.openDevice(this->portName.c_str(), this->buadRate);
+    int err = serial.openDevice(this->portName.c_str(), this->buadRate);
     if (err != Arduino::ERROR_ARDUINO::SUCCSESS)
         return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     this->isOpen = true;
@@ -135,7 +135,7 @@ Arduino::ERROR_ARDUINO Arduino::serialCommend(const std::string &message)
 {
     if (!this->isOpen)
         return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
-    this->serial.writeString(message.c_str());
+    serial.writeString(message.c_str());
     // check sum should be added.
     return Arduino::ERROR_ARDUINO::SUCCSESS;
 }
@@ -169,34 +169,29 @@ Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(const std::string &data, i
  */
 Arduino::ERROR_ARDUINO Arduino::getDataWithWhileLoop()
 {
-    Arduino::ERROR_ARDUINO return_code = Arduino::ERROR_ARDUINO::SUCCESS;
-    return_code =this->openSerial()
-    if (return_code  != Arduino::ERROR_ARDUINO::SUCCESS;)
+    Arduino::ERROR_ARDUINO return_code = Arduino::ERROR_ARDUINO::SUCCSESS;
+    return_code = openSerial();
+    if (return_code != Arduino::ERROR_ARDUINO::SUCCSESS)
     {
         goto l_cleanup;
     }
     while (true)
     {
-        if (this->serial.available())
+        if (serial.available())
         {
             uint32_t num = 0;
             this->serial.readBytes(&num, sizeof(num));
             switch (num)
             {
             case Arduino::HEADERS::GET_FLOAT:
-                return_code = receiveDataFromSensor();
-                if(return_code != SUCCESS)
-                     goto l_cleanup;
+                return_code = receiveFloatFromSensor();
+                if (return_code != SUCCSESS)
+                    goto l_cleanup;
                 continue;
             case Arduino::HEADERS::ASK_FOR_OVERALL_STATUS:
                 return_code = checkStatusFromArduino();
-                if(return_code == SOMEERROR)
-                {
-                   handle error
-                   return_code = SUCCESS;
-                }
-                if(return_code != SUCCESS)
-                     goto l_cleanup;
+                if (return_code != SUCCSESS)
+                    goto l_cleanup;
                 continue;
             default:
                 continue;
@@ -210,13 +205,13 @@ l_cleanup:
  * @brief will receive a message and write it to the sensor log
  * @return Arduino::ERROR_ARDUINO will return the error code if there is one. 
  */
-Arduino::ERROR_ARDUINO Arduino::receiveDataFromSensor()
+Arduino::ERROR_ARDUINO Arduino::receiveFloatFromSensor()
 {
-    uint32_t id = 0;
-    this->serial.readBytes(&id, sizeof(id));
+    Arduino::ERROR_ARDUINO errorCode = Arduino::ERROR_ARDUINO::SUCCSESS;
+    int id = receiveInt();
     float f = receiveFloat();
-    this->writeFromBufferToFile(std::to_string(f), id);
-    return Arduino::ERROR_ARDUINO::SUCCSESS;
+  errorCode =   this->writeFromBufferToFile(std::to_string(f), id);
+    return errorCode;
 }
 /**
  * @brief will receive float from serial port
@@ -226,7 +221,7 @@ Arduino::ERROR_ARDUINO Arduino::receiveDataFromSensor()
 float Arduino::receiveFloat()
 {
     float value = 0;
-    this->serial.readBytes(&value, sizeof(value));
+    serial.readBytes(&value, sizeof(value));
     return value;
 }
 /**
@@ -234,12 +229,12 @@ float Arduino::receiveFloat()
  */
 void Arduino::addLogFilesForSensors()
 {
-    this->addFile("..//dataFromArduino//sensor0.log");
-    this->addFile("..//dataFromArduino//sensor1.log");
-    this->addFile("..//dataFromArduino//sensor2.log");
-    this->addFile("..//dataFromArduino//sensor3.log");
-    this->addFile("..//dataFromArduino//sensor4.log");
-    this->addFile("..//dataFromArduino//sensor5.log");
+    addFile("..//dataFromArduino//sensor0.log");
+    addFile("..//dataFromArduino//sensor1.log");
+    addFile("..//dataFromArduino//sensor2.log");
+    addFile("..//dataFromArduino//sensor3.log");
+    addFile("..//dataFromArduino//sensor4.log");
+    addFile("..//dataFromArduino//sensor5.log");
 }
 /**
  * @brief the simplest way to receive a boolean from the arduino
@@ -247,17 +242,13 @@ void Arduino::addLogFilesForSensors()
  */
 bool Arduino::receiveBoolean()
 {
-    bool value = 0;
-    this->serial.readBytes(&value, sizeof(value));
+    uint8_t value = 0;
+    serial.readBytes(&value, sizeof(value));
     return value;
 }
 /**
  * @brief the function will send the arduino a message to 
- * start checking all of its modules. It will look for errors
- * and if there are it will reboot the arduino.
- * 
- * this is a wrapper.
- * 
+ * start checking all of its modules. 
  */
 Arduino::ERROR_ARDUINO Arduino::checkStatusFromArduino()
 {
@@ -276,7 +267,14 @@ Arduino::ERROR_ARDUINO Arduino::checkStatusFromArduino()
  * @brief this is a wrapper for the message checking.
  * @return std::thread the thread of the fanction
  */
-std::thread Arduino::startTheArduinoCheking()
+std::thread* Arduino::startTheArduinoCheking()
 {
-    return std::thread([=] { getDataWithWhileLoop(); });
+    return new std::thread([=] { getDataWithWhileLoop(); });
+}
+
+int Arduino::receiveInt()
+{
+    uint32_t value = 0;
+    serial.readBytes(&value, sizeof(value));
+    return value;
 }

@@ -56,17 +56,18 @@ public:
     bool receiveBoolean();
     Arduino::ERROR_ARDUINO getDataWithWhileLoop();
     void addLogFilesForSensors();
-    std::thread startTheArduinoCheking();
+    std::thread* startTheArduinoCheking();
 
 private:
     Arduino::ERROR_ARDUINO checkStatus(int delay);
+    int receiveInt();
     Arduino::ERROR_ARDUINO checkConnection();
     Arduino::ERROR_ARDUINO serialCommend(const std::string &message);
-Arduino::ERROR_ARDUINO writeFromBufferToFile(const std::string& data, int place);
+    Arduino::ERROR_ARDUINO writeFromBufferToFile(const std::string &data, int place);
     Arduino::ERROR_ARDUINO checkStatusFromArduino();
     Arduino::ERROR_ARDUINO startCheckingForMessege();
     int getCheckSumFromMessage(std::string message);
-    Arduino::ERROR_ARDUINO receiveDataFromSensor();
+    Arduino::ERROR_ARDUINO receiveFloatFromSensor();
     float receiveFloat();
 
     std::ofstream fileToWrite;
