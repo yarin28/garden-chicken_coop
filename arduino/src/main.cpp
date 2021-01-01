@@ -18,6 +18,7 @@ int main(/*int argc, char *argv[]*/)
   Arduino a("/dev/ttyUSB0", BANDWITH, 100000);
   a.openSerial();
   a.addLogFilesForSensors();
-  std::thread rvc = a.startTheArduinoCheking();
-  rvc.join();
+  std::thread *rvc = a.startTheArduinoCheking();
+  rvc->join();
+  delete rvc;
 }
