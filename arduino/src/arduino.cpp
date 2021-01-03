@@ -106,7 +106,7 @@ Arduino::ERROR_ARDUINO Arduino::serialCommend(const std::string &message)
 Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(const std::string &data, int place)
 {
     std::ofstream dataLog;
-    std::string fileName = makeFileName( place);
+    std::string fileName = makeFileName(place);
     dataLog.open(fileName, std::ios_base::app);
     if (!dataLog.is_open())
     {
@@ -168,7 +168,7 @@ float Arduino::receiveFloat()
     float value = 0;
     int error_code = serial.readBytes(&value, sizeof(value));
     if (error_code == 1)
-    return -1;
+        return -1;
     return value;
 }
 
@@ -198,7 +198,7 @@ Arduino::ERROR_ARDUINO Arduino::checkStatusFromArduino()
     else
     {
         std::cout << "the Status is bad!" << std::endl;
-        return Arduino::ERROR_ARDUINO::STATUS_IS_BAD;
+        return Arduino::ERROR_ARDUINO::BAD_STATUS;
     }
 
     return Arduino::ERROR_ARDUINO::SUCCSESS;
@@ -216,7 +216,7 @@ int Arduino::receiveInt()
     return value;
 }
 
-std::string Arduino::makeFileName( int place)
+std::string Arduino::makeFileName(int place)
 {
 
     std::string fileName = FILE_NAME;
