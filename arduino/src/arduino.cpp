@@ -14,13 +14,13 @@
 #define FILE_NAME "../dataFromArduino/sensor"
 #define FILE_NAME_END ".log"
 
+Arduino::Arduino(const std::string &portName, unsigned int buadRate, unsigned int timeout) : portName(portName), buadRate(buadRate), timeout(timeout)
+{
+}
+
 Arduino::~Arduino()
 {
     this->serial.closeDevice();
-}
-
-Arduino::Arduino(const std::string &portName, unsigned int buadRate, unsigned int timeout) : portName(portName), buadRate(buadRate), timeout(timeout)
-{
 }
 
 const std::vector<std::string> &Arduino::getFiles()
@@ -42,10 +42,12 @@ Arduino::ERROR_ARDUINO Arduino::checkConnection()
 {
     if (!this->isOpen)
         return Arduino::ERROR_ARDUINO::SUCCSESS;
-    char helper = serial.openDevice(portName.c_str(), buadRate);
-    if (helper != 1)
+    char errorCode = serial.openDevice(portName.c_str(), buadRate);
+    if (errorCode != 1)
     {
         serial.closeDevice();
+
+        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     }
 
     serial.closeDevice();
@@ -58,8 +60,11 @@ void Arduino::checkConnectionToConsole()
     {
         std::cout << "there was a problem with the connection" << std::endl;
     }
+    else
+    {
 
-    std::cout << "the connection is successful!-" << std::endl;
+        std::cout << "the connection is successful!" << std::endl;
+    }
 }
 
 void Arduino::addFile(const std::string &file)
@@ -83,7 +88,7 @@ int Arduino::checkSum(const char *message)
 Arduino::ERROR_ARDUINO Arduino::openSerial()
 {
     int err = serial.openDevice(this->portName.c_str(), this->buadRate);
-    if (err != Arduino::ERROR_ARDUINO::SUCCSESS)
+    if (err != 1)
         return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
     this->isOpen = true;
     return Arduino::ERROR_ARDUINO::SUCCSESS;
@@ -101,9 +106,7 @@ Arduino::ERROR_ARDUINO Arduino::serialCommend(const std::string &message)
 Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(const std::string &data, int place)
 {
     std::ofstream dataLog;
-    std::string fileName = FILE_NAME;
-    fileName.append(std::to_string(place));
-    fileName.append(FILE_NAME_END);
+    std::string fileName = makeFileName( place);
     dataLog.open(fileName, std::ios_base::app);
     if (!dataLog.is_open())
     {
@@ -124,23 +127,21 @@ Arduino::ERROR_ARDUINO Arduino::getDataWithWhileLoop()
     {
         goto l_cleanup;
     }
-
     while (true)
     {
         if (serial.available())
         {
-            uint32_t num = 0;
-            this->serial.readBytes(&num, sizeof(num));
-            switch (num)
+            uint32_t command = receiveInt();
+            switch (command)
             {
             case Arduino::HEADERS::GET_FLOAT:
                 return_code = receiveFloatFromSensor();
-                if (return_code != SUCCSESS)
+                if (return_code != Arduino::ERROR_ARDUINO::SUCCSESS)
                     goto l_cleanup;
                 continue;
             case Arduino::HEADERS::ASK_FOR_OVERALL_STATUS:
                 return_code = checkStatusFromArduino();
-                if (return_code != SUCCSESS)
+                if (return_code != Arduino::ERROR_ARDUINO::SUCCSESS)
                     goto l_cleanup;
                 continue;
             default:
@@ -165,7 +166,9 @@ Arduino::ERROR_ARDUINO Arduino::receiveFloatFromSensor()
 float Arduino::receiveFloat()
 {
     float value = 0;
-    serial.readBytes(&value, sizeof(value));
+    int error_code = serial.readBytes(&value, sizeof(value));
+    if (error_code == 1)
+    return -1;
     return value;
 }
 
@@ -183,7 +186,7 @@ bool Arduino::receiveBoolean()
 {
     uint8_t value = 0;
     serial.readBytes(&value, sizeof(value));
-    return value;
+    return -1;
 }
 
 Arduino::ERROR_ARDUINO Arduino::checkStatusFromArduino()
@@ -211,4 +214,13 @@ int Arduino::receiveInt()
     uint32_t value = 0;
     serial.readBytes(&value, sizeof(value));
     return value;
+}
+
+std::string Arduino::makeFileName( int place)
+{
+
+    std::string fileName = FILE_NAME;
+    fileName.append(std::to_string(place));
+    fileName.append(FILE_NAME_END);
+    return fileName;
 }
