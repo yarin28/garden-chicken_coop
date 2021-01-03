@@ -218,7 +218,6 @@ int Arduino::receiveInt()
 
 std::string Arduino::makeFileName(int place)
 {
-
     std::string fileName = FILE_NAME;
     fileName.append(std::to_string(place));
     fileName.append(FILE_NAME_END);
