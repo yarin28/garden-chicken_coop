@@ -8,122 +8,75 @@
  * 
  */
 
-#include <ctime>
 #include "arduino.h"
 #define CHECK_BUFFER_SIZE 64
-#define FILE_NAME "../dataFromArduino/sensor"
-#define FILE_NAME_END ".log"
 
-Arduino::Arduino(const std::string &portName, unsigned int buadRate, unsigned int timeout) : portName(portName), buadRate(buadRate), timeout(timeout)
+ArduinoClient::ArduinoClient(const std::string &portName, unsigned int baudRate, unsigned int timeout) : portName(portName), baudRate(baudRate), timeout(timeout)
 {
 }
 
-Arduino::~Arduino()
+ArduinoClient::~ArduinoClient()
 {
     this->serial.closeDevice();
 }
 
-const std::vector<std::string> &Arduino::getFiles()
-{
-    return this->files;
-}
-
-int Arduino::getTimout()
+int ArduinoClient::getTimout()
 {
     return this->timeout;
 }
 
-void Arduino::setTimeout(int timeout)
+void ArduinoClient::setTimeout(int timeout)
 {
     this->timeout = timeout;
 }
 
-Arduino::ERROR_ARDUINO Arduino::checkConnection()
+ArduinoClient::ERROR ArduinoClient::checkConnection()
 {
-    if (!this->isOpen)
-        return Arduino::ERROR_ARDUINO::SUCCSESS;
-    char errorCode = serial.openDevice(portName.c_str(), buadRate);
+    if (this->isOpen)
+        return ArduinoClient::ERROR::SUCCSESS;
+    char errorCode = serial.openDevice(portName.c_str(), baudRate);
     if (errorCode != 1)
     {
-        serial.closeDevice();
-
-        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
+        return ArduinoClient::ERROR::ERROR_WITH_SERIALPORT;
     }
-
-    serial.closeDevice();
-    return Arduino::ERROR_ARDUINO::SUCCSESS;
+    return ArduinoClient::ERROR::SUCCSESS;
 }
 
-void Arduino::checkConnectionToConsole()
-{
-    if (checkConnection() != Arduino::ERROR_ARDUINO::SUCCSESS)
-    {
-        std::cout << "there was a problem with the connection" << std::endl;
-    }
-    else
-    {
-
-        std::cout << "the connection is successful!" << std::endl;
-    }
-}
-
-void Arduino::addFile(const std::string &file)
-{
-    this->files.push_back(file);
-}
-
-int Arduino::checkSum(const char *message)
+int ArduinoClient::checkSum(const char *message) const
 {
     int sum = 0;
     const char *p = &message[0];
-    while (*p != NULL)
+    while (*p != 0)
     {
         sum += *message;
         ++p;
     }
-
     return sum;
 }
 
-Arduino::ERROR_ARDUINO Arduino::openSerial()
+ArduinoClient::ERROR ArduinoClient::openSerial()
 {
-    int err = serial.openDevice(this->portName.c_str(), this->buadRate);
+    int err = serial.openDevice(this->portName.c_str(), this->baudRate);
     if (err != 1)
-        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
+        return ArduinoClient::ERROR::ERROR_WITH_SERIALPORT;
     this->isOpen = true;
-    return Arduino::ERROR_ARDUINO::SUCCSESS;
+    return ArduinoClient::ERROR::SUCCSESS;
 }
 
-Arduino::ERROR_ARDUINO Arduino::serialCommend(const std::string &message)
+ArduinoClient::ERROR ArduinoClient::serialCommend(const std::string &message)
 {
     if (!this->isOpen)
-        return Arduino::ERROR_ARDUINO::ERROR_WITH_SERIALPORT;
+        return ArduinoClient::ERROR::CLOSED_CONNECTION;
     serial.writeString(message.c_str());
     // check sum should be added.
-    return Arduino::ERROR_ARDUINO::SUCCSESS;
+    return ArduinoClient::ERROR::SUCCSESS;
 }
 
-Arduino::ERROR_ARDUINO Arduino::writeFromBufferToFile(const std::string &data, int place)
+ArduinoClient::ERROR ArduinoClient::getDataWithWhileLoop()
 {
-    std::ofstream dataLog;
-    std::string fileName = makeFileName(place);
-    dataLog.open(fileName, std::ios_base::app);
-    if (!dataLog.is_open())
-    {
-        return Arduino::ERROR_ARDUINO::ERROR_WITH_FILES;
-    }
-
-    dataLog << std::time(nullptr) << std::endl;
-    dataLog << data << std::endl;
-    dataLog.close();
-    return Arduino::ERROR_ARDUINO::SUCCSESS;
-}
-
-Arduino::ERROR_ARDUINO Arduino::getDataWithWhileLoop()
-{
-    Arduino::ERROR_ARDUINO return_code = Arduino::ERROR_ARDUINO::SUCCSESS;
+    ArduinoClient::ERROR return_code = ArduinoClient::ERROR::SUCCSESS;
     return_code = openSerial();
-    if (return_code != Arduino::ERROR_ARDUINO::SUCCSESS)
+    if (return_code != ArduinoClient::ERROR::SUCCSESS)
     {
         goto l_cleanup;
     }
@@ -131,17 +84,18 @@ Arduino::ERROR_ARDUINO Arduino::getDataWithWhileLoop()
     {
         if (serial.available())
         {
-            uint32_t command = receiveInt();
+            uint32_t command = 0;
+            receiveInt(command);
             switch (command)
             {
-            case Arduino::HEADERS::GET_FLOAT:
-                return_code = receiveFloatFromSensor();
-                if (return_code != Arduino::ERROR_ARDUINO::SUCCSESS)
+            case ArduinoClient::MESSAGES::FLOAT_DATA:
+                return_code = logFloatFromSensor();
+                if (return_code != ArduinoClient::ERROR::SUCCSESS)
                     goto l_cleanup;
                 continue;
-            case Arduino::HEADERS::ASK_FOR_OVERALL_STATUS:
+            case ArduinoClient::COMMANDS::ASK_FOR_OVERALL_STATUS:
                 return_code = checkStatusFromArduino();
-                if (return_code != Arduino::ERROR_ARDUINO::SUCCSESS)
+                if (return_code != ArduinoClient::ERROR::SUCCSESS)
                     goto l_cleanup;
                 continue;
             default:
@@ -154,72 +108,65 @@ l_cleanup:
     return return_code;
 }
 
-Arduino::ERROR_ARDUINO Arduino::receiveFloatFromSensor()
+ArduinoClient::ERROR ArduinoClient::logFloatFromSensor()
 {
-    Arduino::ERROR_ARDUINO errorCode = Arduino::ERROR_ARDUINO::SUCCSESS;
-    int id = receiveInt();
-    float f = receiveFloat();
-    errorCode = this->writeFromBufferToFile(std::to_string(f), id);
+    ArduinoClient::ERROR errorCode = ArduinoClient::ERROR::SUCCSESS;
+    uint32_t sensorId = 0;
+    receiveInt(sensorId);
+    float value = 0;
+    receiveFloat(value);
+
+    FileHandler::ERROR errorCodeFile = FileHandler::ERROR::SUCCSESS;
+    FileHandler file_array_temp;
+    errorCodeFile = file_array_temp.writeFromBufferToFile(std::to_string(value), sensorId);
     return errorCode;
 }
 
-float Arduino::receiveFloat()
+ArduinoClient::ERROR ArduinoClient::receiveFloat(float &value)
 {
-    float value = 0;
     int error_code = serial.readBytes(&value, sizeof(value));
     if (error_code == 1)
-        return -1;
-    return value;
+        return ArduinoClient::ERROR::ERROR_WITH_SERIALPORT;
+    return ArduinoClient::ERROR::SUCCSESS;
 }
 
-void Arduino::addLogFilesForSensors()
+ArduinoClient::ERROR ArduinoClient::receiveBoolean(uint8_t &value)
 {
-    addFile("..//dataFromArduino//sensor0.log");
-    addFile("..//dataFromArduino//sensor1.log");
-    addFile("..//dataFromArduino//sensor2.log");
-    addFile("..//dataFromArduino//sensor3.log");
-    addFile("..//dataFromArduino//sensor4.log");
-    addFile("..//dataFromArduino//sensor5.log");
+    if (serial.readBytes(&value, sizeof(value)) <= 0)
+    {
+        return ArduinoClient::ERROR::ERROR_WITH_SERIALPORT;
+    }
+
+    return ArduinoClient::ERROR::SUCCSESS;
 }
 
-bool Arduino::receiveBoolean()
+ArduinoClient::ERROR ArduinoClient::checkStatusFromArduino()
 {
-    uint8_t value = 0;
-    serial.readBytes(&value, sizeof(value));
-    return -1;
-}
-
-Arduino::ERROR_ARDUINO Arduino::checkStatusFromArduino()
-{
-    if (receiveBoolean())
+    uint8_t isGood = 0;
+    receiveBoolean(isGood);
+    if (isGood == 1)
     {
         std::cout << "the Status is great!" << std::endl;
     }
     else
     {
         std::cout << "the Status is bad!" << std::endl;
-        return Arduino::ERROR_ARDUINO::BAD_STATUS;
+        return ArduinoClient::ERROR::BAD_STATUS;
     }
 
-    return Arduino::ERROR_ARDUINO::SUCCSESS;
+    return ArduinoClient::ERROR::SUCCSESS;
 }
 
-std::thread *Arduino::startTheArduinoCheking()
+std::thread *ArduinoClient::startTheArduinoCheking()
 {
     return new std::thread([=] { getDataWithWhileLoop(); });
 }
 
-int Arduino::receiveInt()
+ArduinoClient::ERROR ArduinoClient::receiveInt(uint32_t &value)
 {
-    uint32_t value = 0;
-    serial.readBytes(&value, sizeof(value));
-    return value;
-}
-
-std::string Arduino::makeFileName(int place)
-{
-    std::string fileName = FILE_NAME;
-    fileName.append(std::to_string(place));
-    fileName.append(FILE_NAME_END);
-    return fileName;
+    if (serial.readBytes(&value, sizeof(value)) <= 0)
+    {
+        return ArduinoClient::ERROR::ERROR_WITH_SERIALPORT;
+    }
+    return ArduinoClient::ERROR::SUCCSESS;
 }

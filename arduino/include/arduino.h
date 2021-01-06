@@ -5,19 +5,26 @@
 #include "serialib.h"
 #include <ios>
 #include <thread>
-
-class Arduino
+#include "fileHandler.h"
+/**
+ * @brief the connector between the arduino and the pi
+ * it handles the protocol.
+ */
+class ArduinoClient
 {
 public:
-  enum HEADERS
+  enum COMMANDS
   {
-    GET_FLOAT = 700,
-    GET_BOOLEAN = 701,
     ASK_FOR_STATUS_PER_SENSOR = 30,
     ASK_FOR_OVERALL_STATUS = 300,
   };
 
-  enum ERROR_ARDUINO
+  enum MESSAGES
+  {
+    FLOAT_DATA = 700,
+    BOOLEAN = 701,
+  };
+  enum ERROR
   {
     SUCCSESS = 0,
     ERROR_WITH_SERIALPORT,
@@ -25,98 +32,77 @@ public:
     THE_CHECKSUM_DID_NOT_WORK,
     THE_ARDUINO_IS_NOT_RESPONDING,
     BAD_STATUS,
+    CLOSED_CONNECTION,
   };
 
   /**
-   * @brief Construct a new Arduino::Arduino object
+   * @brief Construct a new ArduinoClient object
    * 
    */
-  Arduino(const std::string &portName, unsigned int buadRate, unsigned int timeout);
+  ArduinoClient(const std::string &portName, unsigned int baudRate, unsigned int timeout);
 
   /*!
-  * @brief Destroy the Arduino::Arduino object 
+  * @brief Destroy the ArduinoClient object 
   */
-  ~Arduino();
+  ~ArduinoClient();
 
   /**
    * @brief setter of the timeout
    * 
-   * @param timeout int the time to abandon the serial communication
+   * @param timeout int the time to abandon the serial communication in miliseconds
    */
   void setTimeout(int timeout);
 
   /**
    * @brief getter for the timeout of the serial port
    * 
-   * @return int the time to abandon the serial communication
+   * @return int the time to abandon the serial communication in miliseconds
    */
   int getTimout();
-
-  /**
-   * @brief getter, will return an array of files that the class uses
-   * to output of the sensors
-   * 
-   * @return std::vector<std::string> an array of string 
-   */
-  void setFiles();
-  const std::vector<std::string> &getFiles();
-  /**
-   * @brief check the connection 
-   */
-  void checkConnectionToConsole();
-  /*
-  * @brief calculate the sum of a string
-  * @param message a string that the checksum will be calcualted from
-  * @return int the checksum that was calculated from the message
-  */
-  int checkSum(const char *message); //TODO by mistake I made 2 instances of the same func
-  /**
-   * @brief open the serial class with the members of this class
-   * @return Arduino::ERROR_ARDUINO will return the error code if there is one. or succsess 
-   */
-  Arduino::ERROR_ARDUINO openSerial();
-  /**
-   * @brief adds file to the files array
-   * @param file the file to add to the array of files
-   */
-  void addFile(const std::string &file);
-  /**
-   * @brief the simplest way to receive a boolean from the arduino
-   * @return bool the value that came from the serial port.
-   */
-  bool receiveBoolean();
-  /**
-   * @brief this is the main function,
-   * will listen to the serial port and interact with it.
-   * 
-   * @return Arduino::ERROR_ARDUINO will return the error code if there is one. 
-   */
-  Arduino::ERROR_ARDUINO getDataWithWhileLoop();
-  /**
-   * @brief will add mock files for the logging
-   */
-  void addLogFilesForSensors();
-  /**
-   * @brief this is a wrapper for the message checking.
-   * you will need to dea
-   * @return std::thread the thread of the fanction
-   */
-  std::thread *startTheArduinoCheking();
-
-private:
-  /**
-   * @brief the function will send the arduino a message to 
-   * start checking all of its modules. 
-   */
-  Arduino::ERROR_ARDUINO checkStatus(int delay);
-
-  int receiveInt();
 
   /**
    * @brief check the connection to the arduino and report.
    * @return the error code 
    */
-  Arduino::ERROR_ARDUINO checkConnection();
+  ArduinoClient::ERROR checkConnection();
+  /**
+   * @brief this is a wrapper for the message checking.
+   * you will need to delete
+   */
+  std::thread *startTheArduinoCheking();
+
+  /**
+   * @brief open the serial port
+   * @return ArduinoClient::ERROR will return the error code if there is one. or succsess 
+   */
+  ArduinoClient::ERROR openSerial();
+  FileHandler fileHandler;
+
+private:
+  /*
+  * @brief calculate the sum of a string
+  * @param message a string that the checksum will be calcualted from
+  * @return int the checksum that was calculated from the message
+  */
+  int checkSum(const char *message) const;
+  /**
+   * @brief the simplest way to receive a boolean from the arduino
+   * @return bool the value that came from the serial port.
+   */
+  ArduinoClient::ERROR receiveBoolean(uint8_t &value);
+  /**
+   * @brief this is the main function,
+   * will listen to the serial port and interact with it.
+   * 
+   * @return ArduinoClient::ERROR will return the error code if there is one. 
+   */
+  ArduinoClient::ERROR getDataWithWhileLoop();
+  /**
+   * @brief the function will send the arduino a message to 
+   * start checking all of its modules. 
+   */
+
+  ArduinoClient::ERROR receiveInt(uint32_t &value);
 
   /*
   * @brief send a serial commend to the arduino and confirm
@@ -128,53 +114,29 @@ private:
   * 3->the prifix (this message will be a command)
   * 01-> the "id" (this one will request status from sensor 1)
   * 
-  * @return Arduino::ERROR_ARDUINO the error code.
+  * @return ArduinoClient::ERROR the error code.
   */
-  Arduino::ERROR_ARDUINO serialCommend(const std::string &message);
-
-  /**
-   * @brief dumps data and timestamp to file
-   * @param data to write to the file
-   * @param place the index of the file from array
-   * @return Arduino::ERROR_ARDUINO will return the error code if there is one. 
-   */
-  Arduino::ERROR_ARDUINO writeFromBufferToFile(const std::string &data, int place);
+  ArduinoClient::ERROR serialCommend(const std::string &message);
 
   /**
    * @brief will check the status of the arduino.
-   * @return Arduino::ERROR_ARDUINO will return the error code if there is one. 
+   * @return ArduinoClient::ERROR will return the error code if there is one. 
    */
-  Arduino::ERROR_ARDUINO checkStatusFromArduino();
-
-  /**
-   * @brief will get checksum from a string
-   * @return int the checksum.
-   */
-  int getCheckSumFromMessage(std::string message);
+  ArduinoClient::ERROR checkStatusFromArduino();
   /**
    * @brief will receive a message and write it to the sensor log
-   * @return Arduino::ERROR_ARDUINO will return the error code if there is one. 
+   * @return ArduinoClient::ERROR will return the error code if there is one. 
    */
-  Arduino::ERROR_ARDUINO receiveFloatFromSensor();
+  ArduinoClient::ERROR logFloatFromSensor();
   /**
    * @brief will receive float from serial port
    * 
    * @return float the value that came out.
    */
-  float receiveFloat();
-
-  /**
-   * @brief make file name form the place.
-   * @param the id of the sensor
-    @return the file name to open.
-  */
-  std::string makeFileName(int place);
-
-  std::ofstream fileToWrite;
+  ArduinoClient::ERROR receiveFloat(float &value);
   serialib serial;
   std::string portName;
-  unsigned int buadRate;
+  unsigned int baudRate;
   unsigned int timeout;
   bool isOpen;
-  std::vector<std::string> files;
 };
