@@ -13,5 +13,3 @@ find_package( Threads )
 add_executable(comunication "./src/main.cpp" "./src/serialib.cpp" "./src/arduino.cpp" "./src/FileHandler.cpp")
 target_link_libraries( comunication ${CMAKE_THREAD_LIBS_INIT} )
 target_link_libraries(comunication spdlog::spdlog ) 
-# add the logger class
-# add_definitions(-DSPDLOG_COMPILED_LIB)

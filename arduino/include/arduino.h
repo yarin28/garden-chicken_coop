@@ -5,7 +5,10 @@
 #include "serialib.h"
 #include <ios>
 #include <thread>
-#include "fileHandler.h"
+#include <functional>
+
+typedef std::function<int(int, float)> DataRciveCallback;
+
 /**
  * @brief the connector between the arduino and the pi
  * it handles the protocol.
@@ -24,22 +27,25 @@ public:
     FLOAT_DATA = 700,
     BOOLEAN = 701,
   };
+
   enum ERROR
   {
     SUCCSESS = 0,
-    ERROR_WITH_SERIALPORT,
-    ERROR_WITH_FILES,
-    THE_CHECKSUM_DID_NOT_WORK,
-    THE_ARDUINO_IS_NOT_RESPONDING,
+    SERIAL_PORT_ERROR,
+    CHECKSUM_ERROR,
+    TIMEOUT_ERROR,
     BAD_STATUS,
     CLOSED_CONNECTION,
   };
 
   /**
    * @brief Construct a new ArduinoClient object
-   * 
+   * @param portName place to listen to .
+   * @param baudRate the rate of serial port .
+   * @param timeout the time to exit the serial port.
+   * @param dataReivieCallbaack the func
    */
-  ArduinoClient(const std::string &portName, unsigned int baudRate, unsigned int timeout);
+  ArduinoClient(const std::string &portName, unsigned int baudRate, unsigned int timeout, DataRciveCallback dataRciveCallback);
 
   /*!
   * @brief Destroy the ArduinoClient object 
@@ -76,7 +82,6 @@ public:
    * @return ArduinoClient::ERROR will return the error code if there is one. or succsess 
    */
   ArduinoClient::ERROR openSerial();
-  FileHandler fileHandler;
 
 private:
   /*
@@ -108,32 +113,30 @@ private:
   * @brief send a serial commend to the arduino and confirm
   *  that the message has been received 
   * 
-  * @param message  the commend to be sent, now 3 is the prefix 
-  * of the commends and the 2 digits behind it are the commend itself
-  * for example 301
-  * 3->the prifix (this message will be a command)
-  * 01-> the "id" (this one will request status from sensor 1)
+  * @param message  the commend to be sent
   * 
   * @return ArduinoClient::ERROR the error code.
   */
-  ArduinoClient::ERROR serialCommend(const std::string &message);
+  ArduinoClient::ERROR sendSerialCommend(const std::string &message);
 
-  /**
-   * @brief will check the status of the arduino.
-   * @return ArduinoClient::ERROR will return the error code if there is one. 
-   */
-  ArduinoClient::ERROR checkStatusFromArduino();
   /**
    * @brief will receive a message and write it to the sensor log
    * @return ArduinoClient::ERROR will return the error code if there is one. 
    */
   ArduinoClient::ERROR logFloatFromSensor();
   /**
+   * @brief will check the status of the arduino.
+   * @return ArduinoClient::ERROR will return the error code if there is one. 
+   */
+  ArduinoClient::ERROR printStatusFromArduino();
+  /**
    * @brief will receive float from serial port
    * 
    * @return float the value that came out.
    */
   ArduinoClient::ERROR receiveFloat(float &value);
+
+  DataRciveCallback dataRciveCallback;
   serialib serial;
   std::string portName;
   unsigned int baudRate;

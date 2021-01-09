@@ -1,3 +1,4 @@
 */build
 *.log
-*/django
+*../django
+*/include/spdlog

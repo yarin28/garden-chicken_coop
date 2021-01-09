@@ -1,5 +1,5 @@
 /**
- * @file FileHandler.cpp
+ * @file FilesHandler.cpp
  * @author yarin
  * @brief 
  * @version 0.1
@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2021
  * 
  */
-
+#include <string>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include "fileHandler.h"
@@ -16,42 +16,49 @@
 #define FILE_NAME "../dataFromArduino/sensor"
 #define FILE_NAME_END ".log"
 
-FileHandler::FileHandler()
+FilesHandler::FilesHandler(int amount)
+{
+    for (int i = 0; i < amount; i++)
+    {
+        addFile(makeFileName(i,FILE_NAME,FILE_NAME_END));
+    }
+}
+FilesHandler::FilesHandler()
 {
     for (int i = 0; i < 5; i++)
     {
-        addFile(makeFileName(i));
+        addFile(makeFileName(i,FILE_NAME,FILE_NAME_END));
     }
 }
 
-const std::vector<std::string> &FileHandler::getFiles()
+const std::vector<std::string> &FilesHandler::getFiles()
 {
     return this->files;
 }
-FileHandler::ERROR FileHandler::writeFromBufferToFile(const std::string &data, int place)
+
+FilesHandler::ERROR FilesHandler::writeFromBufferToFile(const std::string &data, int place)
 {
     std::ofstream dataLog;
     std::string fileName = makeFileName(place);
     dataLog.open(fileName, std::ios_base::app);
     if (!dataLog.is_open())
     {
-        return FileHandler::ERROR::FILE_UNAVALBLE;
+        return FilesHandler::ERROR::FILE_NOT_EXIST;
     }
 
     dataLog << std::time(nullptr) << std::endl;
     dataLog << data << std::endl;
     dataLog.close();
-    // spdlog::get("ylogger")->info("one was printed");
-    return FileHandler::ERROR::SUCCSESS;
+    return FilesHandler::ERROR::SUCCSESS;
 }
-void FileHandler::addFile(std::string file)
+void FilesHandler::addFile(std::string file)
 {
     this->files.push_back(file);
 }
-std::string FileHandler::makeFileName(int place)
+std::string FilesHandler::makeFileName( int place = 4,std::string startName , std::string endName )
 {
-    std::string fileName = FILE_NAME;
+    std::string fileName = startName;
     fileName.append(std::to_string(place));
-    fileName.append(FILE_NAME_END);
+    fileName.append(endName);
     return fileName;
 }
