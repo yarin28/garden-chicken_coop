@@ -4,12 +4,9 @@
 
 The protocol will use http like commands.  
 
-3 - command  
 2 - status  
-1 - data  
+3 - command  
 7 - get information  
-5 - get quick peek  
-6 - send big data
 
 After the command prefix will come the id of the command. For example  
 201 - get status from the first sensor
