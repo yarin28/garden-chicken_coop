@@ -22,29 +22,28 @@ public:
   /**
      * @brief Construct a new File Handler object
      */
-  FilesHandler();
+  FilesHandler(int amount = 5);
   /**
    * @brief return an array of files that the class uses
    * to output of the sensors data.
    * @return std::vector<std::string> an array of string 
    */
-  FilesHandler(int amount);
 
-  const std::vector<std::string> &getFiles();
+  const std::vector<std::ofstream> &getFiles() const;
 
   /**
    * @brief dumps data and timestamp to file
    * @param data to write to the file
-   * @param place the index of the file from array
+   * @param index the index of the file from array
    * @return ArduinoClient::ERROR will return the error code if there is one. 
    */
-  FilesHandler::ERROR writeFromBufferToFile(const std::string &data, int place);
+  FilesHandler::ERROR writeToFile(const std::string &data, int index);
 
   /**
    * @brief adds file to the files array
    * @param file the file to add to the array of files
    */
-  void addFile(std::string file);
+  void addFile(std::string path);
 
   /**
    * @brief make file name form the place.
@@ -52,8 +51,8 @@ public:
     @return the file name to open.
   */
 
-std::string makeFileName( int place,std::string startName = FILE_NAME, std::string endName = FILE_NAME_END);
+  std::string makeFileName(int place, std::string startName = FILE_NAME, std::string endName = FILE_NAME_END);
 
 private:
-  std::vector<std::string> files;
+  std::vector<std::ofstream> files;
 };

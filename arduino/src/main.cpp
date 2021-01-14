@@ -16,9 +16,11 @@ int main(/*int argc, char *argv[]*/)
 {
   FilesHandler filesHandler;
   ArduinoClient a(std::string("/dev/ttyUSB0"), BANDWITH, 100000,
-                  [&filesHandler](int sensorId, float data) -> int { return filesHandler.writeFromBufferToFile(std::to_string(data), sensorId); });
+                  [&filesHandler](int sensorId, float data) -> int { return filesHandler.writeToFile(std::to_string(data), sensorId); });
   a.openSerial();
-  std::thread *rvc = a.startTheArduinoCheking();
-  rvc->join();
-  delete rvc;
+  auto f = [&a]() -> void { a.getDataWithWhileLoop(); };
+  f();
+  // std::thread *rvc = a.startTheArduinoCheking();
+  // rvc->join();
+  // delete rvc;
 }

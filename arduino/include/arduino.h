@@ -83,6 +83,14 @@ public:
    */
   ArduinoClient::ERROR openSerial();
 
+  /**
+   * @brief this is the main function,
+   * will listen to the serial port and interact with it.
+   * 
+   * @return ArduinoClient::ERROR will return the error code if there is one. 
+   */
+  ArduinoClient::ERROR getDataWithWhileLoop();
+
 private:
   /*
   * @brief calculate the sum of a string
@@ -95,13 +103,6 @@ private:
    * @return bool the value that came from the serial port.
    */
   ArduinoClient::ERROR receiveBoolean(uint8_t &value);
-  /**
-   * @brief this is the main function,
-   * will listen to the serial port and interact with it.
-   * 
-   * @return ArduinoClient::ERROR will return the error code if there is one. 
-   */
-  ArduinoClient::ERROR getDataWithWhileLoop();
   /**
    * @brief the function will send the arduino a message to 
    * start checking all of its modules. 
@@ -123,7 +124,7 @@ private:
    * @brief will receive a message and write it to the sensor log
    * @return ArduinoClient::ERROR will return the error code if there is one. 
    */
-  ArduinoClient::ERROR logFloatFromSensor();
+  ArduinoClient::ERROR callCallback();
   /**
    * @brief will check the status of the arduino.
    * @return ArduinoClient::ERROR will return the error code if there is one. 

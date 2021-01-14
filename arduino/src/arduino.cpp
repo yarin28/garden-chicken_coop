@@ -46,7 +46,7 @@ int ArduinoClient::checkSum(const char *message) const
 ArduinoClient::ERROR ArduinoClient::openSerial()
 {
     int err = serial.openDevice(this->portName.c_str(), this->baudRate);
-    if (err != 1)
+    if (err != SERIALLIB_SUCCESS)
         return ArduinoClient::ERROR::SERIAL_PORT_ERROR;
     this->isOpen = true;
     return ArduinoClient::ERROR::SUCCSESS;
@@ -56,6 +56,7 @@ ArduinoClient::ERROR ArduinoClient::sendSerialCommend(const std::string &message
 {
     if (!this->isOpen)
         return ArduinoClient::ERROR::CLOSED_CONNECTION;
+
     serial.writeString(message.c_str());
     return ArduinoClient::ERROR::SUCCSESS;
 }
@@ -76,17 +77,21 @@ ArduinoClient::ERROR ArduinoClient::getDataWithWhileLoop()
             return_code = receiveInt(message);
             if (return_code != ArduinoClient::ERROR::SUCCSESS)
                 goto l_cleanup;
+
             switch (message)
             {
             case ArduinoClient::MESSAGES::FLOAT_DATA:
+                callCallback();
                 if (return_code != ArduinoClient::ERROR::SUCCSESS)
                     goto l_cleanup;
                 continue;
+
             case ArduinoClient::COMMANDS::ASK_FOR_OVERALL_STATUS:
                 return_code = printStatusFromArduino();
                 if (return_code != ArduinoClient::ERROR::SUCCSESS)
                     goto l_cleanup;
                 continue;
+
             default:
                 continue;
             }
@@ -98,24 +103,26 @@ l_cleanup:
     return return_code;
 }
 
-ArduinoClient::ERROR ArduinoClient::logFloatFromSensor()
+ArduinoClient::ERROR ArduinoClient::callCallback()
 {
     ArduinoClient::ERROR errorCode = ArduinoClient::ERROR::SUCCSESS;
     uint32_t sensorId = 0;
     errorCode = receiveInt(sensorId);
     if (errorCode != ArduinoClient::ERROR::SUCCSESS)
         return errorCode;
+
     float value = 0;
     errorCode = receiveFloat(value);
     if (errorCode != ArduinoClient::ERROR::SUCCSESS)
         return errorCode;
+
     dataRciveCallback(sensorId, value);
     return errorCode;
 }
 ArduinoClient::ERROR ArduinoClient::receiveFloat(float &value)
 {
     int error_code = serial.readBytes(&value, sizeof(value));
-    if (error_code == 1)
+    if (error_code == SERIALLIB_SUCCESS)
         return ArduinoClient::ERROR::SERIAL_PORT_ERROR;
     return ArduinoClient::ERROR::SUCCSESS;
 }
@@ -134,7 +141,7 @@ ArduinoClient::ERROR ArduinoClient::printStatusFromArduino()
 {
     uint8_t isGood = 0;
     receiveBoolean(isGood);
-    if (isGood == 1)
+    if (isGood)
     {
         std::cout << "the Status is great!" << std::endl;
     }
