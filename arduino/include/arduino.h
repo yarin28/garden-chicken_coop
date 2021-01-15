@@ -1,3 +1,6 @@
+#ifndef __ARDUINO_H__
+#define __ARDUINO_H__
+
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -144,3 +147,5 @@ private:
   unsigned int timeout;
   bool isOpen;
 };
+
+#endif

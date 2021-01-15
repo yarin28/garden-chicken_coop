@@ -10,6 +10,6 @@ add_compile_options("-Wall")
 include_directories("./include")
 # i need that import for the threads to work propraly 
 find_package( Threads )
-add_executable(comunication "./src/main.cpp" "./src/serialib.cpp" "./src/arduino.cpp" "./src/FileHandler.cpp")
+add_executable(comunication "./src/main.cpp" "./src/serialib.cpp" "./src/arduino.cpp" "./src/FileHandler.cpp" "./src/utils.cpp")
 target_link_libraries( comunication ${CMAKE_THREAD_LIBS_INIT} )
 target_link_libraries(comunication spdlog::spdlog ) 

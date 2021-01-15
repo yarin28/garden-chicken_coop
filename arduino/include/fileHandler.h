@@ -1,3 +1,6 @@
+#ifndef __FILES_HANDLER_H__
+#define __FILES_HANDLER_H__
+
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -23,13 +26,15 @@ public:
      * @brief Construct a new File Handler object
      */
   FilesHandler(int amount = 5);
-  /**
+
+  ~FilesHandler();
+
+  /**  
    * @brief return an array of files that the class uses
    * to output of the sensors data.
    * @return std::vector<std::string> an array of string 
    */
-
-  const std::vector<std::ofstream> &getFiles() const;
+  const std::vector<std::ofstream *> &getFiles() const;
 
   /**
    * @brief dumps data and timestamp to file
@@ -37,7 +42,7 @@ public:
    * @param index the index of the file from array
    * @return ArduinoClient::ERROR will return the error code if there is one. 
    */
-  FilesHandler::ERROR writeToFile(const std::string &data, int index);
+  FilesHandler::ERROR writeToFile(const std::string &data, size_t index);
 
   /**
    * @brief adds file to the files array
@@ -45,14 +50,8 @@ public:
    */
   void addFile(std::string path);
 
-  /**
-   * @brief make file name form the place.
-   * @param the id of the sensor
-    @return the file name to open.
-  */
-
-  std::string makeFileName(int place, std::string startName = FILE_NAME, std::string endName = FILE_NAME_END);
-
 private:
-  std::vector<std::ofstream> files;
+  std::vector<std::ofstream *> files;
 };
+
+#endif

@@ -12,51 +12,40 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include "fileHandler.h"
+#include "utils.h"
 #include <ctime>
-#define FILE_NAME "../dataFromArduino/sensor"
-#define FILE_NAME_END ".log"
 #define DEFULT_SENSOR 4
-
-FilesHandler::FilesHandler(int amount = 5)
-{
+FilesHandler::FilesHandler(int amount)
+{ // TODO deleat that shit and move it
     for (int i = 0; i < amount; i++)
     {
         addFile(makeFileName(i, FILE_NAME, FILE_NAME_END));
     }
 }
-const std::vector<std::ofstream> &FilesHandler::getFiles() const
+
+FilesHandler::~FilesHandler()
+{
+    for (auto file : files)
+        delete file;
+}
+const std::vector<std::ofstream *> &FilesHandler::getFiles() const
 {
     return this->files;
 }
 
-FilesHandler::ERROR FilesHandler::writeToFile(const std::string &data, int index)
+FilesHandler::ERROR FilesHandler::writeToFile(const std::string &data, size_t index)
 {
     if (index > files.size())
     {
-        std::string fileName = makeFileName(index);
-        std::ofstream dataLog(fileName, std::ios_base::app);
-        if (!dataLog.is_open())
-        {
-            return FilesHandler::ERROR::FILE_NOT_EXIST;
-        }
-        this->files.push_back(dataLog);
+        return FilesHandler::ERROR::FILE_ERROR;
     }
-
-    files[index] << std::time(nullptr) << std::endl;
-    files[index] << data << std::endl;
-    files[index].close();
+    (*files[index]) << std::time(nullptr) << std::endl;
+    (*files[index]) << data << std::endl;
     return FilesHandler::ERROR::SUCCSESS;
 }
 void FilesHandler::addFile(std::string path)
 {
-    std::ofstream file;
-    file.open(path.c_str(), std::ios_base::app);
+    std::ofstream *file = new std::ofstream();
+    file->open(path.c_str(), std::ios_base::app);
     this->files.push_back(file);
-}
-std::string FilesHandler::makeFileName(int place = DEFULT_SENSOR, std::string startName, std::string endName)
-{
-    std::string fileName = startName;
-    fileName.append(std::to_string(place));
-    fileName.append(endName);
-    return fileName;
 }
